@@ -183,4 +183,4 @@ cython_debug/
 .pypirc
 
 # Heavy data
-data/raw/obs_ebird.txt
+data/external/obs_ebird.txt
