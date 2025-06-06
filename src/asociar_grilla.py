@@ -3,17 +3,17 @@
 
 # Este script va a asociar cada fila de datos de obsevaciones
 # a la grilla correspondiente.
-# Entrada: Archivos csv que tengan columnas que comiencen con
+# Input: Archivos csv que tengan columnas que comiencen con
 # "latitud" y "longitud" sin distinguir mayúsculas de minúsculas
-# La salida es un archivo csv con la columna extra "celda"
+# Output: archivo csv con la columna extra "celda"
 
 # %% Importaciones
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 
-# %% Detectar columnas lat y long
 
+# %% Detectar columnas lat y long
 
 def detect_lat_lon_columns(df):
     """
@@ -21,24 +21,28 @@ def detect_lat_lon_columns(df):
     Busca nombres de columnas que comiencen con lat_prefix o lon_prefix
     (sin distinguir mayúsculas).
 
-    :param df: DataFrame de pandas con las columnas a inspeccionar.
-    :raises ValueError: si no encuentra exactamente una columna para
-    cada coordenada.
+    Args:
+        df: DataFrame de pandas con las columnas a inspeccionar.
+    Returns:
+        Tupla conteniendo los nombres de columnas para latitud y longitud
+    Raises:
+        ValueError: si no encuentra exactamente una columna para cada
+                    coordenada.
     """
-    lat = 'latitud'
-    lon = 'longitud'
+    lat_prefix = 'latitud'
+    lon_prefix = 'longitud'
 
     cols = df.columns
-    lat_cols = [c for c in cols if c.lower().startswith(lat.lower())]
-    lon_cols = [c for c in cols if c.lower().startswith(lon.lower())]
+    lat_cols = [c for c in cols if c.lower().startswith(lat_prefix.lower())]
+    lon_cols = [c for c in cols if c.lower().startswith(lon_prefix.lower())]
 
     if len(lat_cols) != 1:
         raise ValueError(f"""Se esperaba exactamente 1 columna de latitud que
-                          comience con '{lat}', pero se encontraron:
+                          comience con '{lat_prefix}', pero se encontraron:
                           {lat_cols}""")
     if len(lon_cols) != 1:
         raise ValueError(f"""Se esperaba exactamente 1 columna de longitud que
-                          comience con '{lon}', pero se encontraron:
+                          comience con '{lon_prefix}', pero se encontraron:
                           {lon_cols}""")
 
     return lat_cols[0], lon_cols[0]

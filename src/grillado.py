@@ -19,6 +19,12 @@ import numpy as np
 def cargar_geopackage(archivo, geoide):
     """
     Carga un archivo GeoPackage y devuelve un GeoDataFrame.
+
+    Args:
+        archivo (str): Ruta al archivo GeoPackage
+        geoide (str): Sistema de referencia de coordenadas (CRS) usado
+    Returns:
+        GeoDataFrame: GeoDataFrame abierto
     """
     return gpd.read_file(archivo).to_crs(epsg=geoide)
 
@@ -32,7 +38,8 @@ def obtener_extremos(geo_df):
     Args:
         geo_df (GeoDataFrame): GeoDataFrame con geometrías.
     Returns:
-    Point: Punto suroeste.
+        Tupla contentiendo los puntos sudeste (xmin, ymin)
+        y noreste (xmax, ymax).
     """
     xmin, ymin, xmax, ymax = geo_df.total_bounds
     return xmin, ymin, xmax, ymax
@@ -65,6 +72,7 @@ def grillar(contorno, lado_celda):
     Crea una grilla de celdas de lado_celda km de lado sobre el contorno dado.
     Args:
         contorno (GeoDataFrame): GeoDataFrame con el contorno del área.
+        lado_celda (float): Tamaño del lado de la celda en kilómetros
     Returns:
         GeoDataFrame: GeoDataFrame con la grilla de celdas.
     """

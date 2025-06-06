@@ -89,14 +89,15 @@ def grillar_res_mod(grilla, id_grid, clusters, nombre):
     '''
     Esta funcion hace un merge entre una grilla de datos espaciales
     y los resultados de un modelo.
-    Parameters:
-    grilla (geopadas): Geopandas con nombres de celdas y coordenadas
-    id_grid (index): Indice conteniendo los id de las celdas de la grilla
-    clusters(array): Arreglo conteniendo el nro de cluster al que pertenece
-    cada celda.
-    nombre (str): Nombre del modelo
+
+    Args:
+        grilla (geopadas): Geopandas con nombres de celdas y coordenadas
+        id_grid (index): Indice conteniendo los id de las celdas de la grilla
+        clusters(array): Arreglo conteniendo el nro de cluster al que pertenece
+            cada celda.
+        nombre (str): Nombre del modelo
     Returns:
-    grilla_add: Geopandas con resultados del modelo incorporados a la grilla
+        grilla_add: Geopandas con resultados del modelo incorporados a la grilla
     '''
 
     data = {
