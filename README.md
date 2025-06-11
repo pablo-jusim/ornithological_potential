@@ -2,6 +2,19 @@
 
 <img src="data/external/Carpintero.jpeg" alt="drawing" width="200"/>
 
+## Contenidos
+1. [Objetivos](#objetivos)  
+2. [Origen de los datos](#origen-de-los-datos)  
+3. [Línea de trabajo](#línea-de-trabajo)  
+4. [Resultados](#resultados)  
+5. [Conclusiones](#conclusiones)  
+6. [Debilidades](#debilidades-del-proyecto)  
+7. [Organización del proyecto](#organización-del-proyecto)  
+8. [Instalación y uso](#instalación-y-uso)  
+9. [Licencia](#licencia)
+10. [Contacto](#contacto)
+
+
 ## **Objetivos**
 ### Objetivo general
 Descubrir los mejores sitios de la provincia de Tierra del Fuego para llevar turistas que deseen realizar observación de aves.
@@ -16,7 +29,7 @@ Descubrir los mejores sitios de la provincia de Tierra del Fuego para llevar tur
 Se trabajó con registros de especies de aves realizados en las plataformas de **ciencia ciudadana** [iNaturalist](https://www.inaturalist.org) y [eBird](https://ebird.org/). Los datos son libres y fueron solicitados a ambas plataformas. Se solicitaron todos los datos disponibles de registros de aves en la provincia de Tierra del Fuego, Argentina.
 
 ## Línea de trabajo
-Cada punto indicato corresponde a un notebook con idéntica numeración
+Cada punto indicado corresponde a un notebook con idéntica numeración
 
 1a. Limpieza y preparación de datos obtenidos de iNaturalist
 1b. Limpieza y preparación de datos obtenidos de eBird
@@ -39,62 +52,80 @@ A partir de los datos obtenidos de las plataformas iNaturalist y eBird se selecc
 
 Tanto los notebook de este proyecto como las funciones desarrolladas *ad-hoc* pueden ser utilizados para la clasificación de sitios en **cualquier lugar del mundo**, siempre y cuando se disponga de los datos correspondientes. Solo se requiere obtener los datos de las mismas fuentes (los cuales están disponibles tras el registro) y crear un mapa de contorno del área.
 
-### Debilidades del proyecto
+## Debilidades del proyecto
 - Gran cantidad de celdas no cuentan con registros en las mencionadas plataformas. Si bien zonas como península Mitre no serían visitables por su aislamiento geográfico, otras zonas al norte del lago Khami en las ceranías de la frontera cuentan con rutas de acceso y podrían presentar una mayor riqueza de especies.
-- Se decidió utilizar unicamente registros de ciencia ciudadana ya que la forma de obtenerlos es similar a los medios con los que cuentan los turistas (binoculares y cámara fotográfica). Sin embargo, esta metología exluye tanto a los registros realizados por la comunidad científica como los sitios poco visitados. Con registros más completos los clusters obtenidos podrían ser ligeramente diferentes, al igual que las celdas recomendadas.
+- Se decidió utilizar unicamente registros de ciencia ciudadana ya que la forma de obtenerlos es similar a los medios con los que cuentan los turistas (binoculares y cámara fotográfica). Sin embargo, esta metología excluye tanto a los registros realizados por la comunidad científica como los sitios poco visitados. Con registros más completos los clusters obtenidos podrían ser ligeramente diferentes, al igual que las celdas recomendadas.
 
 <img src="data/external/Condor.jpeg" alt="drawing" width="400"/>
 
 ## Organización del proyecto
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
+├── LICENSE            <- Licencia de código abierto
+├── Makefile           <- Makefile con comandos útiles como `make data` o `make train`.
+├── README.md          <- Archivo README principal con el resumen del proyecto.
 ├── data
-│   ├── external       <- Data and images from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
+│   ├── external       <- Datos e imágenes de fuentes externas (terceros).
+│   ├── interim        <- Datos intermedios que han sido transformados.
+│   ├── processed      <- Conjuntos de datos finales.
+│   └── raw            <- Volcado de datos original para el modelado.
 │
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
+├── notebooks          <- Notebooks de Jupyter para procesar y modelar los datos
+│   ├── 01a-conversion_inat.ipynb       <- Limpieza de datos iNaturalist.
+│   ├── 01b-conversion_ebird.ipynb      <- Limpieza de datos eBird.
+│   ├── 02-preparacion_df.ipynb         <- Creación de base de datos para modelado.
+|   ├── 03-main.ipynb                   <- Clusterización de la grilla.
+│   └── 04-postprocesamiento.ipynb      <- Evaluación de riqueza y creación de mapas.
 │
-├── models             <- Trained and serialized models, model predictions, or model summaries
+├── pyproject.toml     <- Archivo de configuración del proyecto
 │
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+├── references         <- Material de referencia.
 │
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         potencial_ornitologico_fueguino and configuration for tools like black
+├── reports            <- Análisis generados en formatos HTML, PDF, LaTeX, etc.
+│   └── figures        <- Gráficos y figuras generadas para ser utilizadas en los informes,
+│                          incluyendo mapas interactivos.
 │
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
+├── requirements.txt   <- Archivo de requerimientos para reproducir el entorno de análisis, por ejemplo:
+│                         generado con `pip freeze > requirements.txt`.
 │
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── potencial_ornitologico_fueguino   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes potencial_ornitologico_fueguino a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
+├── setup.cfg          <- Archivo de configuración para flake8
+|
+└── src                <- Código fuente del proyecto. Contiene funciones auxiliares utilizadas en los notebooks.
+    ├── __pycache__/    <- Archivos temporales generados automáticamente por Python.
+    ├── utils.py        <- Funciones generales reutilizables.
+    ├── grillado.py     <- Funciones para crear la grilla en base al mapa de contorno.
+    └── asociar_griila.py  <- Funciones para gasociar observaciones a la celda correspondiente.
 ```
 
---------
+## Instalación y uso
 
+1. Clonar el repositorio  
+
+   ```bash
+   git clone https://github.com/pablo-jusim/Potencial-ornitologico-fueguino.git
+   cd Potencial-ornitologico-fueguino
+   ```
+
+2. Crear entorno e instalar dependencias  
+
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate    # o venv\Scripts\activate en Windows
+    pip install -r requirements.txt
+    ```
+
+3. Descargar los datos de eBird desde su servidor o desde [google drive](https://drive.google.com/file/d/1Dlc4CDrUaHSdlqO_qWHAMROhHPoJIOhG/view?usp=sharing).
+
+4. Ejecutar los notebook en el orden indicado
+
+## Licencia
+
+Este proyecto se distribuye bajo la licencia MIT.  
+Ver [LICENSE](LICENSE) para más detalles.
+
+## Contacto
+pablo.jusim@gmail.com
+
+
+
+--------
