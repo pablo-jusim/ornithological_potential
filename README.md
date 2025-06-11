@@ -1,12 +1,42 @@
 # Potencial Ornitologico Fueguino
 
-<a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
-    <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
-</a>
+<img src="data/external/Carpintero.jpeg" alt="drawing" width="200"/>
 
-Clasificación de puntos de un raster de la provincia de Tierra del Fuego, Argentina en base a su potencial para observación de aves según registros historicos d eobservacion
+## **Objetivos**
+### Objetivo general
+Descubrir los mejores sitios de la provincia de Tierra del Fuego para llevar turistas que deseen realizar observación de aves.
 
-## Project Organization
+### Objetivos particulares
+- Clasificar cada celda de la provincia de Tierra del Fuego en un cluster según las especies de aves registradas
+- Identificar los sitios con mayor potencial ornitológico dentro de cada cluster
+
+<img src="data/external/Pingüino_rey.jpeg" alt="drawing" width="200"/>
+
+## Origen de los datos
+Se trabajó con registros de especies de aves realizados en las plataformas de **ciencia ciudadana** [iNaturalist](https://www.inaturalist.org) y [eBird](https://ebird.org/). Los datos son libres y fueron solicitados a ambas plataformas. Se solicitaron todos los datos disponibles de registros de aves en la provincia de Tierra del Fuego, Argentina.
+
+## Línea de trabajo
+Cada punto indicato corresponde a un notebook con idéntica numeración
+
+1a. Limpieza y preparación de datos obtenidos de iNaturalist
+1b. Limpieza y preparación de datos obtenidos de eBird
+2. Confección de la base de datos a utilizarse en la clasificación de sitios (celdas)
+3. Clusterización de las celdas en base a las especies registradas
+4. Detección de las mejores celdas para observación en cada cluster en base a la riqueza específica y creación de mapas.
+
+## Resultados
+- Se dividió a la provincia de Tierra del Fuego en tres clusters según las especies de aves presentes
+- Se obtuvo una grilla clusterizada de la provincia
+- Se destacaron los mejores sitios para observación de aves en cada cluster
+- Se creó un mapa mostrando la grilla clusterizada y la riqueza relativa de cada celda
+
+## Conclusiones
+
+A partir de los datos obtenidos de las plataformas iNaturalist y eBird se seleccionaron los mejores sitios para llevar turistas que deseen observar la mayor cantidad de aves que habitan en la provincia de Tierra del Fuego en la menor cantidad de salidas posible. 
+
+<img src="data/external/Condor.jpeg" alt="drawing" width="400"/>
+
+## Organización del proyecto
 
 ```
 ├── LICENSE            <- Open-source license if one is chosen
