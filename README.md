@@ -1,4 +1,5 @@
 # Potencial Ornitologico Fueguino
+### **Autor:** Pablo Jusim
 
 <img src="data/external/Carpintero.jpeg" alt="drawing" width="200"/>
 
