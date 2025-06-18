@@ -45,8 +45,9 @@ Cada punto indicado corresponde a un notebook con idéntica numeración
 - Se creó un mapa mostrando la grilla clusterizada y la riqueza relativa de cada celda
 
 <img src="reports/figures/Captura mapa interactivo.jpg" alt="drawing"/>
-Aquí se observa una captura de pantalla del mapa final. Para ver el mapa interactivo, haga click [aquí](reports/figures/mapa_interactivo.html) 
-o consulte la ruta "reports/figures/mapa_interactivo.html"
+
+<p></p>
+<p>Aquí se observa una captura de pantalla del mapa final. Para ver el mapa interactivo consulte la ruta "reports/figures/mapa_interactivo.html"</p>
 
 ## Conclusiones
 
