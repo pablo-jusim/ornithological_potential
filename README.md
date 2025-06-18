@@ -44,6 +44,10 @@ Cada punto indicado corresponde a un notebook con idéntica numeración
 - Se destacaron los mejores sitios para observación de aves en cada cluster
 - Se creó un mapa mostrando la grilla clusterizada y la riqueza relativa de cada celda
 
+<img src="reports/figures/Captura mapa interactivo.jpg" alt="drawing"/>
+Aquí se observa una captura de pantalla del mapa final. Para ver el mapa interactivo, haga click [aquí](reports/figures/mapa_interactivo.html) 
+o consulte la ruta "reports/figures/mapa_interactivo.html"
+
 ## Conclusiones
 
 A partir de los datos obtenidos de las plataformas iNaturalist y eBird se seleccionaron los **mejores sitios** para llevar turistas que deseen observar la mayor cantidad de aves que habitan en la provincia de Tierra del Fuego en la menor cantidad de salidas posible. Si un observador de aves desea visitar Tierra del Fuego debería priorizar recorrer:
