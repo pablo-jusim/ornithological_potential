@@ -4,17 +4,21 @@
 <img src="data/external/Carpintero.jpeg" alt="drawing" width="200"/>
 
 ## Contenidos
-1. [Objetivos](#objetivos)  
-2. [Origen de los datos](#origen-de-los-datos)  
-3. [Línea de trabajo](#línea-de-trabajo)  
-4. [Resultados](#resultados)  
-5. [Conclusiones](#conclusiones)  
-6. [Debilidades](#debilidades-del-proyecto)  
-7. [Organización del proyecto](#organización-del-proyecto)  
-8. [Instalación y uso](#instalación-y-uso)  
-9. [Licencia](#licencia)
-10. [Contacto](#contacto)
+1. [Introducción](#introducción)
+2. [Objetivos](#objetivos)  
+3. [Origen de los datos](#origen-de-los-datos)  
+4. [Línea de trabajo](#línea-de-trabajo)  
+5. [Resultados](#resultados)  
+6. [Conclusiones](#conclusiones)  
+7. [Debilidades](#debilidades-del-proyecto)  
+8. [Organización del proyecto](#organización-del-proyecto)  
+9. [Instalación y uso](#instalación-y-uso)  
+10. [Licencia](#licencia)
+11. [Contacto](#contacto)
 
+
+## Introducción
+El turismo de observación de aves u ornitológico está en pleno creciemiento a nivel mundial. Esta clase de turismo trae un bajo impacto ambiental al tiempo que permite el ingreso de divisas. En la provincia de Tierra del Fuego, Argentina, la observación turística de aves está en un estado incipiente. Para formentar esta actividad, sería valorable contar con una clasificación territorial que permita saber a que sitios ir para observar la mayor cantidad de especies posibles, destacando especies raras o endémicas.
 
 ## **Objetivos**
 ### Objetivo general
