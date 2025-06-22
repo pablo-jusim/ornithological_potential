@@ -1,66 +1,62 @@
-# Funciones cortas de uso variado
+# Short utility functions
 
-# %% Importaciones
+# %% Imports
 import pandas as pd
+import geopandas as gpd
 
 
-# %% Eliminar registros de especies raras (menos de x ocurrencias)
+# %% List rare species based on occurrence threshold
 
-def listar_spp_raras(df, ocurrencia):
-    '''
-    Toma un pandas dataframe y devuelve una lista de nombres
-    cientificos de especies con menos de "ocurrencia" ocurrencias.
+def list_rare_species(df: pd.DataFrame, threshold: int) -> list:
+    """
+    Return a list of scientific names for species with occurrences less than
+    or equal to the threshold.
 
-    Parameters:
-    df (pd.DataFrame): DataFrame con una columna 'scientific_name'.
-    ocurrencia (int): Umbral máximo de ocurrencias para considerar una especie
-    como rara.
+    Args:
+        df (pd.DataFrame): DataFrame containing a 'scientific_name' column.
+        threshold (int): Maximum number of occurrences for a species
+        to be considered rare.
+
     Returns:
-    list: A list of scientific names of rare species.
-    '''
-    
-    # Contar cuántas veces aparece cada especie
-    conteo = df['scientific_name'].value_counts()
-    # Filtrar especies que aparecen menos o igual que el umbral
-    spp_raras = conteo[conteo <= ocurrencia].index.tolist()
-    return spp_raras
+        list: List of scientific names of rare species.
+    """
+    counts = df['scientific_name'].value_counts()
+    rare = counts[counts <= threshold].index.tolist()
+    return rare
 
 
-def eliminar_spp_raras(data, ocurrencia):
-    '''
-    Elimina del registro las especies con una ocurrencia menor
-    a cierto umbral
+# %% Remove rare species from dataset
 
-    Parameters:
-    data (csv): Archivo csv con los datos de registro de especies.
-    ocurrencia (int): Umbral máximo de ocurrencias para considerar una especie
-    como rara.
+def remove_rare_species(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
+    """
+    Remove records of species with occurrences less than or equal
+    to the threshold.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with a 'scientific_name' column.
+        threshold (int): Maximum number of occurrences to classify a species
+        as rare.
+
     Returns:
-    pandas df: Data frame con las mismas columnas que el csv original.
-    '''
-
-    # Cargar el arhivo csv como df
-    df = data
-    # Listar especies raras
-    spp_raras = listar_spp_raras(df, ocurrencia)
-    # Eliminar especies raras
-    df_filtrado = df[~df['scientific_name'].isin(spp_raras)]
-    return df_filtrado
-
-# %% Contar registros de especies y devolver en un data frame
+        pd.DataFrame: Filtered DataFrame with rare species removed.
+    """
+    rare_species = list_rare_species(df, threshold)
+    filtered = df[~df['scientific_name'].isin(rare_species)]
+    return filtered
 
 
-def crear_df_conteos(df):
-    '''
-    Cuenta los registros de cada celda y arma un df con los registros
-    de todas las especies del dataframe, una por columna.
-    Parameters:
-    df (pd.DataFrame): DataFrame con las columnas 'grid_cell' y
-     'scientific_name'
+# %% Create counts DataFrame for each grid cell and species
+
+def make_counts_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Count records per grid cell and species, returning a pivoted DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing 'grid_id' and 'scientific_name' columns.
+
     Returns:
-    pd.DataFrame: DataFrame con la cantidad de registros por celda
-    '''
-
+        pd.DataFrame: Pivot table DataFrame with counts per cell per species.
+    """
     pivot = (
         df
         .pivot_table(
@@ -71,52 +67,45 @@ def crear_df_conteos(df):
         )
         .reset_index()
     )
-
-    # Aplanar MultiIndex de columnas si existiera
+    # Flatten MultiIndex columns if present
     if isinstance(pivot.columns, pd.MultiIndex):
-        # para cada tupla, toma el valor no vacío
-        pivot.columns = [
-            col[1] if col[1] != '' else col[0]
-            for col in pivot.columns
-        ]
-
+        pivot.columns = [col[1] if col[1] else col[0] for col in pivot.columns]
     return pivot
 
-# %% Incorporar modelado a grilla espacial
 
+# %% Merge model results into spatial grid
 
-def grillar_res_mod(grilla, id_grid, clusters, nombre):
-    '''
-    Esta funcion hace un merge entre una grilla de datos espaciales
-    y los resultados de un modelo.
+def merge_model_results(
+    grid_gdf: 'gpd.GeoDataFrame',
+    cell_ids: list,
+    cluster_labels: list,
+    model_name: str
+) -> 'gpd.GeoDataFrame':
+    """
+    Merge model output (cluster labels) into a spatial grid GeoDataFrame.
 
     Args:
-        grilla (geopadas): Geopandas con nombres de celdas y coordenadas
-        id_grid (index): Indice conteniendo los id de las celdas de la grilla
-        clusters(array): Arreglo conteniendo el nro de cluster al que pertenece
-            cada celda.
-        nombre (str): Nombre del modelo
+        grid_gdf (GeoDataFrame): GeoDataFrame of spatial grid with 'grid_id'.
+        cell_ids (list): List of grid cell IDs corresponding 
+        to each observation.
+        cluster_labels (list): Cluster label for each grid cell.
+        model_name (str): Name of the model/output column.
+
     Returns:
-        grilla_add: Geopandas con resultados del modelo incorporados a la grilla
-    '''
-
-    data = {
-        'grid_id': id_grid,
-        nombre: clusters
-    }
+        GeoDataFrame: Merged GeoDataFrame with a new column for model labels.
+    """
+    data = {'grid_id': cell_ids, model_name: cluster_labels}
     df_mod = pd.DataFrame(data)
-
-    grilla_add = grilla.merge(df_mod, on='grid_id', how='left')
-    return grilla_add
-
-
-# %% Pruebas
+    merged = grid_gdf.merge(df_mod, on='grid_id', how='left')
+    return merged
 
 
-if __name__ == "__main__":
-    # Prueba de la función
-    ruta = '../data/interim/data_ebird.csv'
-    archivo = pd.read_csv(ruta)
-    tabla = crear_df_conteos(archivo)
-    print(tabla)
+# %% Tests
+
+if __name__ == '__main__':
+    # Test make_counts_dataframe
+    SAMPLE_PATH = '../data/interim/data_ebird.csv'
+    df_sample = pd.read_csv(SAMPLE_PATH)
+    result = make_counts_dataframe(df_sample)
+    print(result.head())
 
