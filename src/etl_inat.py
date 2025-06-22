@@ -155,10 +155,10 @@ def export_clean_data(df: pd.DataFrame, output_path: Path) -> None:
         output_path (Path): Destination CSV file path.
     """
     if not output_path.is_absolute():
-        root_dir = Path(__file__).resolve().parent.parent  # raíz del proyecto
+        root_dir = Path(__file__).resolve().parent.parent
         output_path = root_dir / output_path
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)  # crea carpetas si no existen
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     logging.info("Exported cleaned data to %s", output_path)
 
