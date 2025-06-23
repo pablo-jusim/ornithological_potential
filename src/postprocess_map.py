@@ -114,6 +114,9 @@ def make_folium_map(
 # Main entry point
 # -----------------------------------------------------------------------------
 def main():
+    """
+    Main function to execute this script
+    """
     parser = argparse.ArgumentParser(
         description="Generate interactive richness map from grid data"
     )

@@ -119,17 +119,15 @@ def export_clean_data(df: pd.DataFrame, output_path: Path) -> None:
 # Main pipeline
 # -----------------------------------------------------------------------------
 
-def main():
+def main(raw_path: Path):
     """
-    Main function to execute the preprocessing steps.
+    Main function to execute the preprocessing steps on eBird data.
+
+    Args:
+        raw_path (Path): Path to the raw eBird TXT file.
     """
-    raw_path = Path('../data/external/obs_ebird.txt')
     output_path = Path('data/raw/data_ebird.csv')
 
     df_raw = load_raw_ebird(raw_path)
     df_clean = select_and_rename_columns(df_raw)
     export_clean_data(df_clean, output_path)
-
-
-if __name__ == '__main__':
-    main()

@@ -24,7 +24,6 @@ from pyogrio.errors import DataSourceError
 # Add project `src` directory to Python path
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.append(str(BASE_DIR.parent / 'src'))
-import utils
 
 # -----------------------------------------------------------------------------
 # Logging setup

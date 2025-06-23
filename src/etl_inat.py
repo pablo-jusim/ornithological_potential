@@ -167,11 +167,13 @@ def export_clean_data(df: pd.DataFrame, output_path: Path) -> None:
 # Main pipeline
 # -----------------------------------------------------------------------------
 
-def main():
+def main(raw_path: Path):
     """
-    Main function of the script
+    Main function to execute the preprocessing steps on iNaturlist data.
+
+    Args:
+        raw_path (Path): Path to the raw iNat CSV file.
     """
-    raw_path = Path('../data/external/obs_iNat.csv')
     output_path = Path('data/raw/data_inat.csv')
 
     df_raw = load_raw_inat(raw_path)
@@ -179,7 +181,3 @@ def main():
     df_norm = normalize_scientific_names(df_acc)
     df_final = select_columns(df_norm)
     export_clean_data(df_final, output_path)
-
-
-if __name__ == "__main__":
-    main()
