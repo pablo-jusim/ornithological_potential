@@ -89,18 +89,22 @@ def load_data(
 
 def compute_scores(
     counts_df: pd.DataFrame,
-    priority_species: list[str]
+    priority_species: list[str],
+    priority_weight: int
 ) -> pd.DataFrame:
     """
     Calculate weighted richness and normalized score per cluster cell.
 
     Args:
         counts_df (DataFrame): Index=grid_id, columns=species counts.
-        priority_species (list): Species to weight double.
+        priority_species (list): Species to weight more.
+        priority_weight (int): Weight for priority species.
 
     Returns:
         DataFrame: DataFrame with columns ['grid_id','score_riqueza']
     """
+    if priority_species is None:
+        priority_species = []
     # set index
     reg_idx = counts_df.set_index('grid_id')
 
@@ -112,7 +116,7 @@ def compute_scores(
     weights = pd.Series(1.0, index=reg_idx.columns)
     for sp in priority_species:
         if sp in weights.index:
-            weights[sp] = 2.0
+            weights[sp] = float(priority_weight)
     weighted = prop_df.multiply(weights, axis=1)
 
     # compute richness and score per cluster
@@ -192,26 +196,18 @@ def export_grid(
 # -----------------------------------------------------------------------------
 
 def main(
-    grid_path: Path = Path('data/processed/grilla_tdf_clusters.gpkg'),
-    counts_path: Path = Path('data/interim/grilla_tdf_spp.csv'),
-    enriched_path: Path = Path('data/processed/grilla_riqueza.gpkg'),
-    priority_species: list[str] = None
+    grid_path: Path = Path('../data/processed/grilla_tdf_clusters.gpkg'),
+    counts_path: Path = Path('../data/interim/grilla_tdf_spp.csv'),
+    enriched_path: Path = Path('../data/processed/grilla_riqueza.gpkg'),
+    priority_species: list[str] = None,
+    priority_weight: int = 1
 ) -> None:
     """
     Execute post-processing: compute scores, export grid, and generate map.
     """
-    if priority_species is None:
-        priority_species = [
-            "Campephilus magellanicus", "Vultur gryphus", "Chloephaga hybrida",
-            "Chloephaga rubidiceps", "Daptrius albogularis",
-            "Daptrius australis", "Cinclodes antarcticus",
-            "Tachyeres pteneres", "Geositta antarctica",
-            "Calidris canutus", "Aptenodytes patagonicus",
-            "Thalassarche melanophris"
-        ]
 
     grid_gdf, counts_df = load_data(grid_path, counts_path)
-    score_df = compute_scores(counts_df, priority_species)
+    score_df = compute_scores(counts_df, priority_species, priority_weight)
     enriched = merge_scores(grid_gdf, score_df)
     export_grid(enriched, enriched_path)
 

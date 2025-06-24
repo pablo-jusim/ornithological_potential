@@ -23,6 +23,9 @@ sys.path.append(str(BASE_DIR.parent / 'src'))
 import grid_association
 import utils
 
+# output path
+OUTPUT_PATH = 'data/interim/grilla_tdf_spp.csv'
+
 # -----------------------------------------------------------------------------
 # Logging setup
 # -----------------------------------------------------------------------------
@@ -162,10 +165,10 @@ def export_results(
 # -----------------------------------------------------------------------------
 
 def main(
-    ebird_csv: Path = Path('data/raw/data_ebird.csv'),
-    inat_csv: Path = Path('data/raw/data_inat.csv'),
-    grid_file: Path = Path('data/raw/grilla_tdf_vacia.gpkg'),
-    output_csv: Path = Path('data/interim/grilla_tdf_spp.csv'),
+    ebird_csv: Path = Path('../data/raw/data_ebird.csv'),
+    inat_csv: Path = Path('../data/raw/data_inat.csv'),
+    grid_file: Path = Path('../data/raw/grilla_tdf_vacia.gpkg'),
+    output_csv: Path = Path(OUTPUT_PATH),
     rare_threshold: int = 5
 ) -> None:
     """

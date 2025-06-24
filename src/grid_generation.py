@@ -15,12 +15,13 @@ Steps:
 
 # %% Imports
 from pathlib import Path
+import logging
+import sys
 import geopandas as gpd
 from shapely.geometry import box
 import pandas as pd
 import numpy as np
-import logging
-import sys
+
 
 # Default output path
 OUTPUT_PATH = '../data/raw/grilla_tdf_vacia.gpkg'
@@ -33,6 +34,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     stream=sys.stdout
 )
+
 
 # -----------------------------------------------------------------------------
 # Step 1: Load boundary contour
@@ -61,6 +63,7 @@ def load_geopackage(
     gdf = gpd.read_file(filepath).to_crs(epsg=epsg_code)
     logging.info("Loaded contour: %s", filepath)
     return gdf
+
 
 # -----------------------------------------------------------------------------
 # Step 2: Compute cell size in decimal degrees
@@ -101,6 +104,7 @@ def calculate_cell_size(
     lon_step = lat_step / np.cos(np.deg2rad(mid_lat))
     return lat_step, lon_step
 
+
 # -----------------------------------------------------------------------------
 # Step 3: Generate grid origin points
 # -----------------------------------------------------------------------------
@@ -138,6 +142,7 @@ def generate_grid(
     logging.info("Generated %d grid points", len(df))
     return df
 
+
 # -----------------------------------------------------------------------------
 # Step 4: Convert origins to square polygons
 # -----------------------------------------------------------------------------
@@ -170,6 +175,7 @@ def df_to_geodf(
     )
     return gdf
 
+
 # -----------------------------------------------------------------------------
 # Step 5: Filter cells inside contour
 # -----------------------------------------------------------------------------
@@ -193,13 +199,14 @@ def filter_inside_contour(
     logging.info("Filtered to %d cells within contour", len(clipped))
     return clipped
 
+
 # -----------------------------------------------------------------------------
 # Step 6: Main - generate and export grid
 # -----------------------------------------------------------------------------
 def main(
     contour_path: str,
     epsg_code: int,
-    cell_km: float,
+    cell_size: float,
     output_path: str = OUTPUT_PATH
 ) -> None:
     """
@@ -212,13 +219,14 @@ def main(
         output_path (str): Destination GeoPackage path.
     """
     contour = load_geopackage(Path(contour_path), epsg_code)
-    df_grid = generate_grid(contour, cell_km)
-    gdf_grid = df_to_geodf(df_grid, epsg_code, contour, cell_km)
+    df_grid = generate_grid(contour, cell_size)
+    gdf_grid = df_to_geodf(df_grid, epsg_code, contour, cell_size)
     filtered = filter_inside_contour(gdf_grid, contour)
 
     out_fp = Path(output_path)
     filtered.to_file(out_fp, driver='GPKG', layer=out_fp.stem)
     logging.info("Grid exported to %s", out_fp)
+
 
 if __name__ == '__main__':
     import argparse
