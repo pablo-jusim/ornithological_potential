@@ -54,7 +54,7 @@ def load_data(
         tuple: (grid GeoDataFrame, counts DataFrame)
     """
     # Resolve relative to project
-    project_root = BASE_DIR.parent
+    project_root = BASE_DIR
     grid_fp = (
         project_root / grid_path
         if not grid_path.is_absolute()
