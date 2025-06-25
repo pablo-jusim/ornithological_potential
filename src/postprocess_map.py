@@ -16,7 +16,8 @@ Usage as script:
 
 Importable API:
     from postprocess_map import main
-    main(input_grid, output_html)
+    m = main()
+    m  # returns folium.Map for notebook display
 """
 # %% Imports
 import sys
@@ -26,6 +27,10 @@ import geopandas as gpd
 import folium
 from folium.plugins import Fullscreen
 
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INPUT_GRID = PROJECT_ROOT / 'data' / 'processed' / 'grilla_riqueza.gpkg'
+OUTPUT_HTML = PROJECT_ROOT / 'reports' / 'figures' / 'interactive_map.html'
 # -----------------------------------------------------------------------------
 # Logging configuration
 # -----------------------------------------------------------------------------
@@ -37,39 +42,85 @@ logging.basicConfig(
 
 
 # -----------------------------------------------------------------------------
+# Set style for Folium map
+# -----------------------------------------------------------------------------
+def categorise_opacity(score: float) -> float:
+    """
+    Categorise a weighted richness score (0–1) into one of four opacity levels:
+
+        - Very low (< 0.01)  → 0.2
+        - Low      (< 0.1)   → 0.4
+        - Medium   (< 0.66)  → 0.8
+        - High     (≥ 0.66)  → 0.98
+
+    Returns:
+        float: Opacity value for map visualisation.
+    """
+    if score < 0.01:
+        return 0.2
+    elif score < 0.1:
+        return 0.4
+    elif score < 0.66:
+        return 0.8
+    else:
+        return 0.98
+
+
+# Define color palette
+colors = {
+    '0.0': '#49E973',
+    '1.0': '#A8B47E',
+    '2.0': '#51D3E1',
+    'Without_data': '#4D4D4D'
+}
+
+
+# -----------------------------------------------------------------------------
 # Function to create Folium map
 # -----------------------------------------------------------------------------
 def make_folium_map(
     gdf: gpd.GeoDataFrame,
     output_html: Path
-) -> None:
+) -> folium.Map:
     """
-    Create a Folium Map object, optionally save to HTML,
-    and return the Map for display.
+    Create a Folium Map object, save to HTML, and return the Map for display.
 
     Args:
         gdf (GeoDataFrame): Grid with 'GaussianMixture' and 'score_riqueza'.
         output_html (Path): Path to save the HTML map.
+
+    Returns:
+        folium.Map: Interactive map object.
     """
-    colors = {
-        '0.0': '#49E973',
-        '1.0': '#A8B47E',
-        '2.0': '#51D3E1',
-        'Sin datos': '#4D4D4D'
-        }
+
+    # Ensure cluster field is string
+    gdf['GaussianMixture'] = (gdf['GaussianMixture']
+                              .fillna('Without_data').astype(str))
+    # Convert to WGS84
     gdf_wgs = gdf.to_crs(epsg=4326)
-    center = [gdf_wgs.geometry.centroid.y.mean(),
-              gdf_wgs.geometry.centroid.x.mean()]
+    # Compute center of map
+    center = [
+        gdf_wgs.geometry.centroid.y.mean(),
+        gdf_wgs.geometry.centroid.x.mean()
+    ]
+    # Create Folium map
     m = folium.Map(location=center, zoom_start=7, tiles='cartodbpositron')
     Fullscreen().add_to(m)
 
+    # Style function for GeoJson
     def style_func(feature):
         props = feature['properties']
-        cluster = props.get('GaussianMixture', 'Sin datos')
+        cluster = str(props.get('GaussianMixture', 'Without_data'))
         color = colors.get(cluster, '#f0f0f0')
-        opacity = props.get('opacidad_categoria', 0.7)
-        return {'fillColor': color, 'color': color, 'weight': 0.5,
-                'fillOpacity': opacity}
+        opacity = float(props.get('OpacityCategory', 0.7))
+        return {
+            'fillColor': color,
+            'color': color,
+            'weight': 0.5,
+            'fillOpacity': opacity
+        }
+
+    # Add grid layer
     folium.GeoJson(
         gdf_wgs,
         name='Grid',
@@ -80,6 +131,8 @@ def make_folium_map(
             localize=True
         )
     ).add_to(m)
+
+    # Add satellite basemap
     folium.TileLayer(
         tiles='http://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
         attr='Google Satellite',
@@ -87,7 +140,11 @@ def make_folium_map(
         overlay=False,
         control=True
     ).add_to(m)
+
+    # Add layer control
     folium.LayerControl().add_to(m)
+
+    # Save HTML file
     output_html.parent.mkdir(parents=True, exist_ok=True)
     m.save(output_html)
     logging.info("Saved interactive map to %s", output_html)
@@ -95,22 +152,28 @@ def make_folium_map(
 
 
 # -----------------------------------------------------------------------------
-# Main function
+# Main function with fixed paths
 # -----------------------------------------------------------------------------
-def main() -> None:
+def main() -> folium.Map:
     """
-    Load fixed grid file and generate map.
+    Load fixed grid file, generate and save map, and return Map object.
+
+    Returns:
+        folium.Map: Interactive map for display in notebooks.
     """
-    input_grid = Path('../data/processed/grilla_riqueza.gpkg')
-    output_html = Path('../reports/figures/mapa_interactivo.html')
-    if not input_grid.exists():
-        logging.error("Grid not found: %s", input_grid)
+    if not INPUT_GRID.exists():
+        logging.error("Grid not found: %s", INPUT_GRID)
         sys.exit(1)
-    gdf = gpd.read_file(input_grid)
-    logging.info("Loaded enriched grid: %s", input_grid)
-    m = make_folium_map(gdf, output_html)
-    return m
+    # Read enriched grid
+    gdf = gpd.read_file(INPUT_GRID)
+    logging.info("Loaded enriched grid: %s", INPUT_GRID)
+    gdf['OpacityCategory'] = gdf['score_riqueza'].apply(categorise_opacity)
+    # Generate and save map, return object
+    return make_folium_map(gdf, OUTPUT_HTML)
 
 
+# -----------------------------------------------------------------------------
+# Script entry point
+# -----------------------------------------------------------------------------
 if __name__ == '__main__':
     main()

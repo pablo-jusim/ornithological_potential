@@ -123,7 +123,7 @@ def compute_scores(
     richness = weighted.sum(axis=1)
     # get cluster assignments from reg_idx if present
     # assume cluster column in original grid merged later
-    score_df = richness.to_frame('riqueza_ponderada')
+    score_df = richness.to_frame('weighted_richness')
     # will compute normalized by cluster after merging
     return score_df.reset_index()
 
@@ -142,7 +142,7 @@ def merge_scores(
     Args:
         grid_gdf (GeoDataFrame): Original grid with 'grid_id'
         and 'GaussianMixture'.
-        score_df (DataFrame): DataFrame with 'grid_id' and 'riqueza_ponderada'.
+        score_df (DataFrame): DataFrame with 'grid_id' and 'weighted_richness'.
 
     Returns:
         GeoDataFrame: grid with new 'score_riqueza' column.
@@ -156,7 +156,7 @@ def merge_scores(
 
     # normalize per cluster
     calc['score_riqueza'] = (
-        calc.groupby('cluster')['riqueza_ponderada']
+        calc.groupby('cluster')['weighted_richness']
             .transform(lambda x: x / x.max())
     )
 
