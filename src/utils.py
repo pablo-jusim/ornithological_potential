@@ -1,11 +1,12 @@
 # Short utility functions
 
 # %% Imports
+from typing import Callable, Tuple, Union
 import pandas as pd
 import geopandas as gpd
 import numpy as np
+import seaborn as sns
 from sklearn.metrics import silhouette_score
-from typing import Callable, Tuple, Union
 
 
 # %% List rare species based on occurrence threshold
@@ -55,7 +56,8 @@ def make_counts_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     Count records per grid cell and species, returning a pivoted DataFrame.
 
     Args:
-        df (pd.DataFrame): DataFrame containing 'grid_id' and 'scientific_name' columns.
+        df (pd.DataFrame): DataFrame containing 'grid_id'
+        and 'scientific_name' columns.
 
     Returns:
         pd.DataFrame: Pivot table DataFrame with counts per cell per species.
@@ -107,14 +109,8 @@ def merge_model_results(
 # Model selection functions
 # -----------------------------------------------------------------------------
 
-import numpy as np
-import pandas as pd
-from sklearn.metrics import silhouette_score
-from typing import Callable, Tuple, Union
-
-
 def select_best_k(
-    X: np.ndarray,
+    x: np.ndarray,
     model_class: Callable,
     k_range: Union[range, list],
     model_kwargs: dict = None,
@@ -123,14 +119,17 @@ def select_best_k(
 ) -> Tuple[pd.DataFrame, int]:
     """
     Generic selector for optimal number of clusters/components.
-    Works for models like GaussianMixture (bic/aic) and SpectralClustering (silhouette).
+    Works for models like GaussianMixture (bic/aic)
+    and SpectralClustering (silhouette).
 
     Args:
         X (np.ndarray): Feature matrix.
-        model_class (Callable): Clustering model class, e.g. GaussianMixture or SpectralClustering.
+        model_class (Callable): Clustering model class, e.g.
+        GaussianMixture or SpectralClustering.
         k_range (range or list): Range of k values to test.
         model_kwargs (dict): Additional args for the model.
-        scoring (str): Metric to select best k ('auto', 'bic', 'aic', or 'silhouette').
+        scoring (str): Metric to select best k
+        ('auto', 'bic', 'aic', or 'silhouette').
         random_state (int): For reproducibility (if model supports it).
 
     Returns:
@@ -162,17 +161,17 @@ def select_best_k(
                 metric = 'bic'
             else:
                 metric = scoring
-            score = getattr(model, metric)(X)
+            score = getattr(model, metric)(x)
             direction = 'min'
         else:
             # fallback: use silhouette score
             if hasattr(model, 'fit_predict'):
-                labels = model.fit_predict(X)
+                labels = model.fit_predict(x)
             else:
-                model.fit(X)
-                labels = model.predict(X)
+                model.fit(x)
+                labels = model.predict(x)
             if len(set(labels)) > 1:
-                score = silhouette_score(X, labels)
+                score = silhouette_score(x, labels)
             else:
                 score = np.nan
             metric = 'silhouette'
@@ -224,7 +223,6 @@ def generate_cluster_colors(num_clusters: int) -> dict:
     Returns:
         dict: Dictionary in the form { cluster_id: hex_colour }.
     """
-    import seaborn as sns
 
     # Generate a distinct colour palette
     palette = sns.color_palette('Set2', num_clusters).as_hex()
