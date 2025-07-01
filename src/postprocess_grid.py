@@ -22,8 +22,10 @@ import geopandas as gpd
 from pyogrio.errors import DataSourceError
 
 # Add project `src` directory to Python path
-BASE_DIR = Path(__file__).resolve().parent
-sys.path.append(str(BASE_DIR.parent / 'src'))
+BASE_DIR = Path(__file__).resolve().parent.parent
+GRID_PATH = BASE_DIR / 'data' / 'processed' / 'grilla_tdf_clusters.gpkg'
+COUNTS_PATH = BASE_DIR / 'data' / 'interim' / 'grilla_tdf_spp.csv'
+ENRICHED_PATH = BASE_DIR / 'data' / 'processed' / 'grilla_riqueza.gpkg'
 
 # -----------------------------------------------------------------------------
 # Logging setup
@@ -196,9 +198,9 @@ def export_grid(
 # -----------------------------------------------------------------------------
 
 def main(
-    grid_path: Path = Path('../data/processed/grilla_tdf_clusters.gpkg'),
-    counts_path: Path = Path('../data/interim/grilla_tdf_spp.csv'),
-    enriched_path: Path = Path('../data/processed/grilla_riqueza.gpkg'),
+    grid_path=GRID_PATH,
+    counts_path=COUNTS_PATH,
+    enriched_path=ENRICHED_PATH,
     priority_species: list[str] = None,
     priority_weight: int = 1
 ) -> None:

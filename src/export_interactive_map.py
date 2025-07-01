@@ -26,11 +26,15 @@ from pathlib import Path
 import geopandas as gpd
 import folium
 from folium.plugins import Fullscreen
+from utils import categorise_opacity, generate_cluster_colors
 
+# %% Paths
+BASE_DIR = Path(__file__).resolve().parent.parent
+# Define input data path
+INPUT_GRID = BASE_DIR / 'data' / 'processed' / 'grilla_riqueza.gpkg'
+# Define output path for interactive map
+OUTPUT_HTML = BASE_DIR / 'reports' / 'figures' / 'interactive_map.html'
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-INPUT_GRID = PROJECT_ROOT / 'data' / 'processed' / 'grilla_riqueza.gpkg'
-OUTPUT_HTML = PROJECT_ROOT / 'reports' / 'figures' / 'interactive_map.html'
 # -----------------------------------------------------------------------------
 # Logging configuration
 # -----------------------------------------------------------------------------
@@ -42,43 +46,10 @@ logging.basicConfig(
 
 
 # -----------------------------------------------------------------------------
-# Set style for Folium map
-# -----------------------------------------------------------------------------
-def categorise_opacity(score: float) -> float:
-    """
-    Categorise a weighted richness score (0–1) into one of four opacity levels:
-
-        - Very low (< 0.01)  → 0.2
-        - Low      (< 0.1)   → 0.4
-        - Medium   (< 0.66)  → 0.8
-        - High     (≥ 0.66)  → 0.98
-
-    Returns:
-        float: Opacity value for map visualisation.
-    """
-    if score < 0.01:
-        return 0.2
-    elif score < 0.1:
-        return 0.4
-    elif score < 0.66:
-        return 0.8
-    else:
-        return 0.98
-
-
-# Define color palette
-colors = {
-    '0.0': '#49E973',
-    '1.0': '#A8B47E',
-    '2.0': '#51D3E1',
-    'Without_data': '#4D4D4D'
-}
-
-
-# -----------------------------------------------------------------------------
 # Function to create Folium map
 # -----------------------------------------------------------------------------
 def make_folium_map(
+    colors: dict,
     gdf: gpd.GeoDataFrame,
     output_html: Path
 ) -> folium.Map:
@@ -86,6 +57,7 @@ def make_folium_map(
     Create a Folium Map object, save to HTML, and return the Map for display.
 
     Args:
+        colors (dict): Dictionary mapping cluster IDs to hex colors.
         gdf (GeoDataFrame): Grid with 'GaussianMixture' and 'score_riqueza'.
         output_html (Path): Path to save the HTML map.
 
@@ -154,26 +126,28 @@ def make_folium_map(
 # -----------------------------------------------------------------------------
 # Main function with fixed paths
 # -----------------------------------------------------------------------------
-def main() -> folium.Map:
+def main(cluster_count: int) -> folium.Map:
     """
     Load fixed grid file, generate and save map, and return Map object.
 
     Returns:
         folium.Map: Interactive map for display in notebooks.
     """
+
     if not INPUT_GRID.exists():
         logging.error("Grid not found: %s", INPUT_GRID)
         sys.exit(1)
+    colors = generate_cluster_colors(cluster_count)
     # Read enriched grid
     gdf = gpd.read_file(INPUT_GRID)
     logging.info("Loaded enriched grid: %s", INPUT_GRID)
     gdf['OpacityCategory'] = gdf['score_riqueza'].apply(categorise_opacity)
     # Generate and save map, return object
-    return make_folium_map(gdf, OUTPUT_HTML)
+    return make_folium_map(colors, gdf, OUTPUT_HTML)
 
 
 # -----------------------------------------------------------------------------
 # Script entry point
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
-    main()
+    main(3)  # Example cluster count, can be adjusted

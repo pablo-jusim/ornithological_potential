@@ -3,6 +3,9 @@
 # %% Imports
 import pandas as pd
 import geopandas as gpd
+import numpy as np
+from sklearn.metrics import silhouette_score
+from typing import Callable, Tuple, Union
 
 
 # %% List rare species based on occurrence threshold
@@ -100,12 +103,136 @@ def merge_model_results(
     return merged
 
 
-# %% Tests
+# -----------------------------------------------------------------------------
+# Model selection functions
+# -----------------------------------------------------------------------------
 
-if __name__ == '__main__':
-    # Test make_counts_dataframe
-    SAMPLE_PATH = '../data/interim/data_ebird.csv'
-    df_sample = pd.read_csv(SAMPLE_PATH)
-    result = make_counts_dataframe(df_sample)
-    print(result.head())
+import numpy as np
+import pandas as pd
+from sklearn.metrics import silhouette_score
+from typing import Callable, Tuple, Union
 
+
+def select_best_k(
+    X: np.ndarray,
+    model_class: Callable,
+    k_range: Union[range, list],
+    model_kwargs: dict = None,
+    scoring: str = 'auto',  # auto = BIC/AIC if available, else silhouette
+    random_state: int = 0
+) -> Tuple[pd.DataFrame, int]:
+    """
+    Generic selector for optimal number of clusters/components.
+    Works for models like GaussianMixture (bic/aic) and SpectralClustering (silhouette).
+
+    Args:
+        X (np.ndarray): Feature matrix.
+        model_class (Callable): Clustering model class, e.g. GaussianMixture or SpectralClustering.
+        k_range (range or list): Range of k values to test.
+        model_kwargs (dict): Additional args for the model.
+        scoring (str): Metric to select best k ('auto', 'bic', 'aic', or 'silhouette').
+        random_state (int): For reproducibility (if model supports it).
+
+    Returns:
+        results_df (pd.DataFrame): Scores for each k.
+        best_k (int): k that optimizes the chosen metric.
+    """
+    if model_kwargs is None:
+        model_kwargs = {}
+
+    results = []
+
+    for k in k_range:
+        kwargs = model_kwargs.copy()
+
+        # Set correct parameter name
+        if 'GaussianMixture' in model_class.__name__:
+            kwargs['n_components'] = k
+            kwargs['random_state'] = random_state
+        else:
+            kwargs['n_clusters'] = k
+            if 'random_state' in model_class().get_params():
+                kwargs['random_state'] = random_state
+
+        model = model_class(**kwargs)
+
+        if hasattr(model, 'bic') and scoring in ['auto', 'bic', 'aic']:
+            model.fit(X)
+            if scoring == 'auto':
+                metric = 'bic'
+            else:
+                metric = scoring
+            score = getattr(model, metric)(X)
+            direction = 'min'
+        else:
+            # fallback: use silhouette score
+            if hasattr(model, 'fit_predict'):
+                labels = model.fit_predict(X)
+            else:
+                model.fit(X)
+                labels = model.predict(X)
+            if len(set(labels)) > 1:
+                score = silhouette_score(X, labels)
+            else:
+                score = np.nan
+            metric = 'silhouette'
+            direction = 'max'
+
+        results.append({'k': k, metric: score})
+
+    df = pd.DataFrame(results)
+
+    if direction == 'min':
+        best_k = int(df.loc[df[metric].idxmin(), 'k'])
+    else:
+        best_k = int(df.loc[df[metric].idxmax(), 'k'])
+
+    return df, best_k
+
+
+# -----------------------------------------------------------------------------
+# Map related axiliary functions
+# -----------------------------------------------------------------------------
+
+def categorise_opacity(score: float) -> float:
+    """
+    Categorise a weighted richness score (0–1) into one of four opacity levels:
+        - Very low (< 0.01)  → 0.2
+        - Low      (< 0.1)   → 0.4
+        - Medium   (< 0.66)  → 0.8
+        - High     (≥ 0.66)  → 0.98
+    """
+    if score < 0.01:
+        return 0.2
+    elif score < 0.1:
+        return 0.4
+    elif score < 0.66:
+        return 0.8
+    else:
+        return 0.98
+
+
+def generate_cluster_colors(num_clusters: int) -> dict:
+    """
+    Generate a dictionary of unique colours for each cluster.
+
+    Each cluster ID is formatted as a string with one decimal (e.g., '0.0').
+
+    Args:
+        num_clusters (int): Number of clusters to colour.
+
+    Returns:
+        dict: Dictionary in the form { cluster_id: hex_colour }.
+    """
+    import seaborn as sns
+
+    # Generate a distinct colour palette
+    palette = sns.color_palette('Set2', num_clusters).as_hex()
+
+    # Build the dictionary with keys like '0.0', '1.0', etc.
+    colors_dict = {f"{i}.0": palette[i] for i in range(num_clusters)}
+
+    # Add a fixed colour for data without a cluster
+    colors_dict['Without_data'] = '#4D4D4D'
+
+    return colors_dict
