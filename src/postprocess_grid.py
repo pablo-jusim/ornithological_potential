@@ -23,7 +23,7 @@ from pyogrio.errors import DataSourceError
 
 # Add project `src` directory to Python path
 BASE_DIR = Path(__file__).resolve().parent.parent
-GRID_PATH = BASE_DIR / 'data' / 'processed' / 'grilla_tdf_clusters.gpkg'
+GRID_PATH = BASE_DIR / 'data' / 'interim' / 'grilla_tdf_clusters.gpkg'
 COUNTS_PATH = BASE_DIR / 'data' / 'interim' / 'grilla_tdf_spp.csv'
 ENRICHED_PATH = BASE_DIR / 'data' / 'processed' / 'grilla_riqueza.gpkg'
 
@@ -200,7 +200,7 @@ def export_grid(
 def main(
     grid_path=GRID_PATH,
     counts_path=COUNTS_PATH,
-    enriched_path=ENRICHED_PATH,
+    export_path=ENRICHED_PATH,
     priority_species: list[str] = None,
     priority_weight: int = 1
 ) -> None:
@@ -211,7 +211,7 @@ def main(
     grid_gdf, counts_df = load_data(grid_path, counts_path)
     score_df = compute_scores(counts_df, priority_species, priority_weight)
     enriched = merge_scores(grid_gdf, score_df)
-    export_grid(enriched, enriched_path)
+    export_grid(enriched, export_path)
 
 
 if __name__ == '__main__':

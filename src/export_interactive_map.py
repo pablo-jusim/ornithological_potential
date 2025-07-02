@@ -126,7 +126,10 @@ def make_folium_map(
 # -----------------------------------------------------------------------------
 # Main function with fixed paths
 # -----------------------------------------------------------------------------
-def main(cluster_count: int) -> folium.Map:
+def main(
+        cluster_count: int,
+        export_path: Path = OUTPUT_HTML
+        ) -> folium.Map:
     """
     Load fixed grid file, generate and save map, and return Map object.
 
@@ -143,7 +146,7 @@ def main(cluster_count: int) -> folium.Map:
     logging.info("Loaded enriched grid: %s", INPUT_GRID)
     gdf['OpacityCategory'] = gdf['score_riqueza'].apply(categorise_opacity)
     # Generate and save map, return object
-    return make_folium_map(colors, gdf, OUTPUT_HTML)
+    return make_folium_map(colors, gdf, export_path)
 
 
 # -----------------------------------------------------------------------------
