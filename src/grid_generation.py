@@ -1,4 +1,4 @@
-# Potencial Ornitológico Fueguino
+# Ornithological Potential
 # Author: Pablo Jusim
 
 """
@@ -24,7 +24,7 @@ import numpy as np
 
 
 # Default output path
-OUTPUT_PATH = '../data/raw/grilla_tdf_vacia.gpkg'
+OUTPUT_PATH = '../data/raw/empty_local_grid.gpkg'
 
 # -----------------------------------------------------------------------------
 # Logging setup

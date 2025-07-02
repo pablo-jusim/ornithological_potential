@@ -1,3 +1,6 @@
+# Ornithological Potential
+# Author: Pablo Jusim
+
 # Short utility functions
 
 # %% Imports

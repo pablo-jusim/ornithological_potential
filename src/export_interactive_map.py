@@ -1,4 +1,4 @@
-# Potencial Ornitológico Fueguino
+# Ornithological Potential
 # Author: Pablo Jusim
 
 """

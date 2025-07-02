@@ -1,4 +1,4 @@
-# Potencial Ornitológico Fueguino
+# Ornithological Potential
 # Author: Pablo Jusim
 
 """
@@ -6,7 +6,7 @@ Merge eBird and iNaturalist datasets, associate observations to grid cells,
 filter and clean records, count species per cell, and export final CSV.
 
 Produces:
-- ../data/interim/grilla_tdf_spp.csv
+- ../data/interim/species_grid.csv
 """
 
 # %% Imports
@@ -24,7 +24,7 @@ import grid_association
 import utils
 
 # output path
-OUTPUT_PATH = 'data/interim/grilla_tdf_spp.csv'
+OUTPUT_PATH = 'data/interim/species_grid.csv'
 
 # -----------------------------------------------------------------------------
 # Logging setup
