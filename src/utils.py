@@ -1,7 +1,6 @@
-# Ornithological Potential
-# Author: Pablo Jusim
-
-# Short utility functions
+"""
+Utility Functions Module
+"""
 
 # %% Imports
 from typing import Callable, Tuple, Union
@@ -12,58 +11,55 @@ import seaborn as sns
 from sklearn.metrics import silhouette_score
 
 
-# %% List rare species based on occurrence threshold
+# -----------------------------------------------------------------------------
+# Rare species filtering
+# -----------------------------------------------------------------------------
 
 def list_rare_species(df: pd.DataFrame, threshold: int) -> list:
     """
-    Return a list of scientific names for species with occurrences less than
-    or equal to the threshold.
+    Return scientific names of species with occurrences <= threshold.
 
     Args:
         df (pd.DataFrame): DataFrame containing a 'scientific_name' column.
-        threshold (int): Maximum number of occurrences for a species
-        to be considered rare.
+        threshold (int): Max occurrences to consider a species rare.
 
     Returns:
-        list: List of scientific names of rare species.
+        list (str): Rare species names.
     """
     counts = df['scientific_name'].value_counts()
     rare = counts[counts <= threshold].index.tolist()
     return rare
 
 
-# %% Remove rare species from dataset
-
 def remove_rare_species(df: pd.DataFrame, threshold: int) -> pd.DataFrame:
     """
-    Remove records of species with occurrences less than or equal
-    to the threshold.
+    Remove records of species with occurrences <= threshold.
 
     Args:
         df (pd.DataFrame): Input DataFrame with a 'scientific_name' column.
-        threshold (int): Maximum number of occurrences to classify a species
-        as rare.
+        threshold (int): Max occurrences to consider a species rare.
 
     Returns:
-        pd.DataFrame: Filtered DataFrame with rare species removed.
+        pd.DataFrame: Filtered DataFrame.
     """
     rare_species = list_rare_species(df, threshold)
     filtered = df[~df['scientific_name'].isin(rare_species)]
     return filtered
 
 
-# %% Create counts DataFrame for each grid cell and species
+# -----------------------------------------------------------------------------
+# Species counts per cell
+# -----------------------------------------------------------------------------
 
 def make_counts_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Count records per grid cell and species, returning a pivoted DataFrame.
+    Pivot to count species per grid cell.
 
     Args:
-        df (pd.DataFrame): DataFrame containing 'grid_id'
-        and 'scientific_name' columns.
+        df (pd.DataFrame): Contains 'grid_id' and 'scientific_name' columns.
 
     Returns:
-        pd.DataFrame: Pivot table DataFrame with counts per cell per species.
+        pd.DataFrame: Rows=grid_id, cols=species counts.
     """
     pivot = (
         df
@@ -75,55 +71,53 @@ def make_counts_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         )
         .reset_index()
     )
-    # Flatten MultiIndex columns if present
+    # Flatten columns
     if isinstance(pivot.columns, pd.MultiIndex):
         pivot.columns = [col[1] if col[1] else col[0] for col in pivot.columns]
     return pivot
 
 
-# %% Merge model results into spatial grid
+# -----------------------------------------------------------------------------
+# Merge model results into GeoDataFrame
+# -----------------------------------------------------------------------------
 
 def merge_model_results(
     grid_gdf: 'gpd.GeoDataFrame',
-    cell_ids: list,
-    cluster_labels: list,
+    cell_ids: list[int],
+    cluster_labels: list[int],
     model_name: str
 ) -> 'gpd.GeoDataFrame':
     """
-    Merge model output (cluster labels) into a spatial grid GeoDataFrame.
+    Merge cluster labels into spatial grid.
 
     Args:
-        grid_gdf (GeoDataFrame): GeoDataFrame of spatial grid with 'grid_id'.
-        cell_ids (list): List of grid cell IDs corresponding 
-        to each observation.
-        cluster_labels (list): Cluster label for each grid cell.
-        model_name (str): Name of the model/output column.
+        grid_gdf (GeoDataFrame): Contains 'grid_id'.
+        cell_ids (list): Grid IDs matching labels order.
+        cluster_labels (list): Labels per grid cell.
+        model_name (str): Column name for labels.
 
     Returns:
-        GeoDataFrame: Merged GeoDataFrame with a new column for model labels.
+        GeoDataFrame: With new model column.
     """
-    data = {'grid_id': cell_ids, model_name: cluster_labels}
-    df_mod = pd.DataFrame(data)
-    merged = grid_gdf.merge(df_mod, on='grid_id', how='left')
+    data = pd.DataFrame({'grid_id': cell_ids, model_name: cluster_labels})
+    merged = grid_gdf.merge(data, on='grid_id', how='left')
     return merged
 
 
 # -----------------------------------------------------------------------------
-# Model selection functions
+# Cluster number selection
 # -----------------------------------------------------------------------------
 
 def select_best_k(
     x: np.ndarray,
     model_class: Callable,
-    k_range: Union[range, list],
+    k_range: Union[range, list[int]],
     model_kwargs: dict = None,
-    scoring: str = 'auto',  # auto = BIC/AIC if available, else silhouette
+    scoring: str = 'auto',
     random_state: int = 0
 ) -> Tuple[pd.DataFrame, int]:
     """
-    Generic selector for optimal number of clusters/components.
-    Works for models like GaussianMixture (bic/aic)
-    and SpectralClustering (silhouette).
+    Select optimal k for clustering models via BIC/AIC or silhouette.
 
     Args:
         X (np.ndarray): Feature matrix.
@@ -133,21 +127,19 @@ def select_best_k(
         model_kwargs (dict): Additional args for the model.
         scoring (str): Metric to select best k
         ('auto', 'bic', 'aic', or 'silhouette').
-        random_state (int): For reproducibility (if model supports it).
+        random_state (int): For reproducibility.
 
     Returns:
         results_df (pd.DataFrame): Scores for each k.
-        best_k (int): k that optimizes the chosen metric.
+        best_k (int): optimizes the chosen metric.
     """
     if model_kwargs is None:
         model_kwargs = {}
-
     results = []
 
     for k in k_range:
         kwargs = model_kwargs.copy()
 
-        # Set correct parameter name
         if 'GaussianMixture' in model_class.__name__:
             kwargs['n_components'] = k
             kwargs['random_state'] = random_state
@@ -159,7 +151,7 @@ def select_best_k(
         model = model_class(**kwargs)
 
         if hasattr(model, 'bic') and scoring in ['auto', 'bic', 'aic']:
-            model.fit(X)
+            model.fit(x)
             if scoring == 'auto':
                 metric = 'bic'
             else:
@@ -193,12 +185,12 @@ def select_best_k(
 
 
 # -----------------------------------------------------------------------------
-# Map related axiliary functions
+# Map utilities
 # -----------------------------------------------------------------------------
 
 def categorise_opacity(score: float) -> float:
     """
-    Categorise a weighted richness score (0–1) into one of four opacity levels:
+    Categorise a weighted richness score (0-1) into one of four opacity levels:
         - Very low (< 0.01)  → 0.2
         - Low      (< 0.1)   → 0.4
         - Medium   (< 0.66)  → 0.8
@@ -206,12 +198,11 @@ def categorise_opacity(score: float) -> float:
     """
     if score < 0.01:
         return 0.2
-    elif score < 0.1:
+    if score < 0.1:
         return 0.4
-    elif score < 0.66:
+    if score < 0.66:
         return 0.8
-    else:
-        return 0.98
+    return 0.98
 
 
 def generate_cluster_colors(num_clusters: int) -> dict:
@@ -221,19 +212,14 @@ def generate_cluster_colors(num_clusters: int) -> dict:
     Each cluster ID is formatted as a string with one decimal (e.g., '0.0').
 
     Args:
-        num_clusters (int): Number of clusters to colour.
+        num_clusters (int): Number of clusters.
 
     Returns:
-        dict: Dictionary in the form { cluster_id: hex_colour }.
+        dict: {cluster_id: hex_colour}.
     """
 
-    # Generate a distinct colour palette
     palette = sns.color_palette('Set2', num_clusters).as_hex()
+    colors = {f"{i}.0": palette[i] for i in range(num_clusters)}
+    colors['Without_data'] = '#4D4D4D'
 
-    # Build the dictionary with keys like '0.0', '1.0', etc.
-    colors_dict = {f"{i}.0": palette[i] for i in range(num_clusters)}
-
-    # Add a fixed colour for data without a cluster
-    colors_dict['Without_data'] = '#4D4D4D'
-
-    return colors_dict
+    return colors

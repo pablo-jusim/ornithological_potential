@@ -1,19 +1,17 @@
-# Ornithological Potential
-# Author: Pablo Jusim
-
-# eBird Observations Preprocessing Script
-
 """
+eBird Observations Preprocessing Script
+
+
 This script loads raw eBird observation data, selects and renames
 relevant columns, and exports a cleaned CSV ready for downstream analysis.
 
 Steps:
 1. Load raw observations
-2. Select and rename columns to match iNaturalist format
+2. Select and rename columns to standard format
 3. Export cleaned data
 
 Produces:
-- ../data/raw/data_ebird.csv
+- data/raw/data_ebird.csv
 
 The output DataFrame will contain the following columns:
 - common_name   : Common name of the species
@@ -28,6 +26,11 @@ import sys
 import logging
 from pathlib import Path
 import pandas as pd
+
+# Default paths
+BASE_DIR = Path(__file__).resolve().parent.parent
+INPUT_EBIRD_PATH = BASE_DIR / "data" / "external" / "ebird_obs.txt"
+OUTPUT_EBIRD_PATH = BASE_DIR / "data" / "raw" / "data_ebird.csv"
 
 # -----------------------------------------------------------------------------
 # Logging setup
@@ -51,12 +54,11 @@ def load_raw_ebird(filepath: Path) -> pd.DataFrame:
         filepath (Path): Relative or absolute path to the raw .txt file.
 
     Returns:
-        DataFrame: Raw observations.
+        pd.DataFrame: Raw observations.
     """
     # Resolve relative paths relative to script location
     if not filepath.is_absolute():
-        root_dir = Path(__file__).resolve().parent
-        filepath = root_dir / filepath
+        filepath = Path(__file__).resolve().parent.parent / filepath
 
     if not filepath.exists():
         logging.error("File not found: %s", filepath)
@@ -79,7 +81,7 @@ def select_and_rename_columns(df: pd.DataFrame) -> pd.DataFrame:
         df (DataFrame): Raw eBird DataFrame.
 
     Returns:
-        DataFrame: Cleaned DataFrame with standardized column names.
+        pd.DataFrame: Cleaned DataFrame with standardized column names.
     """
     mapping = {
         'COMMON NAME': 'common_name',
@@ -105,11 +107,6 @@ def export_clean_data(df: pd.DataFrame, output_path: Path) -> None:
         df (DataFrame): Cleaned observations.
         output_path (Path): Destination CSV file path.
     """
-    # Resolve relative path
-    if not output_path.is_absolute():
-        root_dir = Path(__file__).resolve().parent.parent
-        output_path = root_dir / output_path
-
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     logging.info("Exported cleaned data to %s", output_path)
@@ -119,15 +116,41 @@ def export_clean_data(df: pd.DataFrame, output_path: Path) -> None:
 # Main pipeline
 # -----------------------------------------------------------------------------
 
-def main(raw_path: Path):
+def main(
+        input_txt: Path,
+        output_csv: Path = OUTPUT_EBIRD_PATH
+         ) -> None:
     """
     Main function to execute the preprocessing steps on eBird data.
 
     Args:
-        raw_path (Path): Path to the raw eBird TXT file.
+        input_txt (Path): Path to the raw eBird .txt file.
+        output_csv (Path): Path to save the cleaned CSV.
     """
-    output_path = Path('data/raw/data_ebird.csv')
-
-    df_raw = load_raw_ebird(raw_path)
+    df_raw = load_raw_ebird(input_txt)
     df_clean = select_and_rename_columns(df_raw)
-    export_clean_data(df_clean, output_path)
+    export_clean_data(df_clean, output_csv)
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Preprocess raw eBird observations into cleaned CSV"
+    )
+    parser.add_argument(
+        "input_txt",
+        nargs="?",
+        type=Path,
+        default=INPUT_EBIRD_PATH,
+        help="Path to raw eBird .txt file (default: %(default)s)"
+    )
+    parser.add_argument(
+        "output_csv",
+        nargs="?",
+        type=Path,
+        default=OUTPUT_EBIRD_PATH,
+        help="Destination CSV file (default: %(default)s)"
+    )
+    args = parser.parse_args()
+    main(args.input_txt, args.output_csv)

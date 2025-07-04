@@ -1,8 +1,9 @@
-# Ornithological Potential
-# Author: Pablo Jusim
-
 """
-Post-processing pipeline for cluster richness.
+Post-processing script for clustered grid data.
+
+This script computes weighted richness scores for each grid cell,
+normalizes the scores within each cluster, merges the scores back
+into the spatial grid, and exports the enriched grid to a GeoPackage.
 
 Steps:
 1. Load clustered grid and species counts
@@ -23,9 +24,9 @@ from pyogrio.errors import DataSourceError
 
 # Add project `src` directory to Python path
 BASE_DIR = Path(__file__).resolve().parent.parent
-GRID_PATH = BASE_DIR / 'data' / 'interim' / 'grilla_tdf_clusters.gpkg'
-COUNTS_PATH = BASE_DIR / 'data' / 'interim' / 'grilla_tdf_spp.csv'
-ENRICHED_PATH = BASE_DIR / 'data' / 'processed' / 'grilla_riqueza.gpkg'
+GRID_PATH = BASE_DIR / 'data' / 'interim' / 'clusters_grid.gpkg'
+COUNTS_PATH = BASE_DIR / 'data' / 'interim' / 'species_grid.csv'
+OUTPUT_PATH = BASE_DIR / 'data' / 'processed' / 'richness_grid.gpkg'
 
 # -----------------------------------------------------------------------------
 # Logging setup
@@ -43,6 +44,7 @@ logging.basicConfig(
 
 def load_data(
     grid_path: Path,
+    layer: str,
     counts_path: Path
 ) -> tuple[gpd.GeoDataFrame, pd.DataFrame]:
     """
@@ -50,6 +52,7 @@ def load_data(
 
     Args:
         grid_path (Path): Path to clustered grid GeoPackage.
+        layer (str): Layer name in the GeoPackage.
         counts_path (Path): Path to species counts CSV.
 
     Returns:
@@ -57,11 +60,6 @@ def load_data(
     """
     # Resolve relative to project
     project_root = BASE_DIR
-    grid_fp = (
-        project_root / grid_path
-        if not grid_path.is_absolute()
-        else grid_path
-               )
     counts_fp = (
         project_root / counts_path
         if not counts_path.is_absolute()
@@ -69,10 +67,10 @@ def load_data(
                  )
 
     try:
-        grid_gdf = gpd.read_file(grid_fp)
-        logging.info("Loaded grid: %s", grid_fp)
+        grid_gdf = gpd.read_file(grid_path)
+        logging.info("Loaded grid: %s", grid_path)
     except DataSourceError:
-        logging.error("Grid file not found: %s", grid_fp)
+        logging.error("Grid file not found: %s", grid_path)
         sys.exit(1)
 
     if not counts_fp.exists():
@@ -86,7 +84,7 @@ def load_data(
 
 
 # -----------------------------------------------------------------------------
-# Step 2: Compute weighted richness and score
+# Step 2: Compute weighted richness and normalized score
 # -----------------------------------------------------------------------------
 
 def compute_scores(
@@ -121,13 +119,12 @@ def compute_scores(
             weights[sp] = float(priority_weight)
     weighted = prop_df.multiply(weights, axis=1)
 
-    # compute richness and score per cluster
+    # Sum across species to get weighted richness
     richness = weighted.sum(axis=1)
-    # get cluster assignments from reg_idx if present
-    # assume cluster column in original grid merged later
     score_df = richness.to_frame('weighted_richness')
-    # will compute normalized by cluster after merging
-    return score_df.reset_index()
+    score_df.reset_index(inplace=True)
+
+    return score_df
 
 
 # -----------------------------------------------------------------------------
@@ -144,10 +141,11 @@ def merge_scores(
     Args:
         grid_gdf (GeoDataFrame): Original grid with 'grid_id'
         and 'GaussianMixture'.
-        score_df (DataFrame): DataFrame with 'grid_id' and 'weighted_richness'.
+        score_df (pd.DataFrame): DataFrame with 'grid_id'
+        and 'weighted_richness' columns.
 
     Returns:
-        GeoDataFrame: grid with new 'score_riqueza' column.
+        GeoDataFrame: grid with new 'richness_score' column.
     """
     df_calc = grid_gdf[['grid_id', 'GaussianMixture']].copy()
     df_calc = df_calc[df_calc['GaussianMixture'].notna()]
@@ -157,14 +155,14 @@ def merge_scores(
     calc = df_calc.merge(score_df, on='grid_id', how='left')
 
     # normalize per cluster
-    calc['score_riqueza'] = (
+    calc['richness_score'] = (
         calc.groupby('cluster')['weighted_richness']
             .transform(lambda x: x / x.max())
     )
 
     # assign back to GeoDataFrame
     result = grid_gdf.merge(
-        calc[['grid_id', 'score_riqueza']],
+        calc[['grid_id', 'richness_score']],
         on='grid_id', how='left'
     )
     logging.info("Merged scores into grid")
@@ -199,8 +197,9 @@ def export_grid(
 
 def main(
     grid_path=GRID_PATH,
+    layer='clusters_grid',
     counts_path=COUNTS_PATH,
-    export_path=ENRICHED_PATH,
+    export_path=OUTPUT_PATH,
     priority_species: list[str] = None,
     priority_weight: int = 1
 ) -> None:
@@ -208,7 +207,7 @@ def main(
     Execute post-processing: compute scores, export grid, and generate map.
     """
 
-    grid_gdf, counts_df = load_data(grid_path, counts_path)
+    grid_gdf, counts_df = load_data(grid_path, layer, counts_path)
     score_df = compute_scores(counts_df, priority_species, priority_weight)
     enriched = merge_scores(grid_gdf, score_df)
     export_grid(enriched, export_path)

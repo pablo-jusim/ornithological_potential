@@ -1,7 +1,6 @@
-# Ornithological Potential
-# Author: Pablo Jusim
-
 """
+Grid generation script.
+
 Generate a spatial grid of square cells over a given boundary.
 
 Steps:
@@ -23,8 +22,10 @@ import pandas as pd
 import numpy as np
 
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 # Default output path
-OUTPUT_PATH = '../data/raw/empty_local_grid.gpkg'
+OUTPUT_PATH = BASE_DIR / 'data' / 'raw' / 'empty_local_grid.gpkg'
+CONTOUR_PATH = BASE_DIR / 'data' / 'external' / 'contour_tdf.gpkg'
 
 # -----------------------------------------------------------------------------
 # Logging setup
@@ -39,6 +40,7 @@ logging.basicConfig(
 # -----------------------------------------------------------------------------
 # Step 1: Load boundary contour
 # -----------------------------------------------------------------------------
+
 def load_geopackage(
     filepath: Path,
     epsg_code: int
@@ -55,7 +57,7 @@ def load_geopackage(
     """
     # Resolve relative path based on script location
     if not filepath.is_absolute():
-        root_dir = Path(__file__).resolve().parent
+        root_dir = Path(__file__).resolve().parent.parent
         filepath = root_dir / filepath
     if not filepath.exists():
         logging.error("Contour file not found: %s", filepath)
@@ -68,6 +70,7 @@ def load_geopackage(
 # -----------------------------------------------------------------------------
 # Step 2: Compute cell size in decimal degrees
 # -----------------------------------------------------------------------------
+
 def get_extents(
     geo_df: gpd.GeoDataFrame
 ) -> tuple[float, float, float, float]:
@@ -108,6 +111,7 @@ def calculate_cell_size(
 # -----------------------------------------------------------------------------
 # Step 3: Generate grid origin points
 # -----------------------------------------------------------------------------
+
 def generate_grid(
     contour: gpd.GeoDataFrame,
     cell_km: float
@@ -146,6 +150,7 @@ def generate_grid(
 # -----------------------------------------------------------------------------
 # Step 4: Convert origins to square polygons
 # -----------------------------------------------------------------------------
+
 def df_to_geodf(
     df: pd.DataFrame,
     epsg_code: int,
@@ -171,7 +176,7 @@ def df_to_geodf(
             lambda r: box(r.lon, r.lat, r.lon + lon_step, r.lat + lat_step),
             axis=1
         ),
-        crs=f"EPSG:{epsg_code}"  # geographic
+        crs=f"EPSG:{epsg_code}"
     )
     return gdf
 
@@ -179,6 +184,7 @@ def df_to_geodf(
 # -----------------------------------------------------------------------------
 # Step 5: Filter cells inside contour
 # -----------------------------------------------------------------------------
+
 def filter_inside_contour(
     gdf: gpd.GeoDataFrame,
     contour: gpd.GeoDataFrame
@@ -203,37 +209,58 @@ def filter_inside_contour(
 # -----------------------------------------------------------------------------
 # Step 6: Main - generate and export grid
 # -----------------------------------------------------------------------------
+
 def main(
-    contour_path: str,
-    epsg_code: int,
     cell_size: float,
-    output_path: str = OUTPUT_PATH
+    epsg_code: int,
+    contour_path: Path = CONTOUR_PATH,
+    output_path: Path = OUTPUT_PATH
 ) -> None:
     """
     Generate grid and save to GeoPackage.
 
     Args:
-        contour_path (str): Path to boundary GeoPackage.
+        contour_path (Path): Path to boundary GeoPackage.
         epsg_code (int): EPSG code for output grid CRS.
         cell_km (float): Side length of grid cells in km.
-        output_path (str): Destination GeoPackage path.
+        output_path (Path): Destination GeoPackage path.
     """
     contour = load_geopackage(Path(contour_path), epsg_code)
     df_grid = generate_grid(contour, cell_size)
     gdf_grid = df_to_geodf(df_grid, epsg_code, contour, cell_size)
     filtered = filter_inside_contour(gdf_grid, contour)
 
-    out_fp = Path(output_path)
-    filtered.to_file(out_fp, driver='GPKG', layer=out_fp.stem)
-    logging.info("Grid exported to %s", out_fp)
+    filtered.to_file(output_path, driver='GPKG', layer=output_path.stem)
+    logging.info("Grid exported to %s", output_path)
 
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Generate spatial grid')
-    parser.add_argument('contour_file', help='GeoPackage boundary file')
-    parser.add_argument('epsg_code', type=int, help='EPSG CRS code')
-    parser.add_argument('cell_km', type=float, help='Cell side in km')
+
+    parser = argparse.ArgumentParser(
+        description='Generate spatial grid'
+    )
+    parser.add_argument(
+        'cell_size',
+        nargs='?',
+        type=float,
+        default=5.0,
+        help='Cell side in km'
+    )
+    parser.add_argument(
+        'epsg_code',
+        nargs='?',
+        type=int,
+        default=4326,
+        help='EPSG CRS code'
+    )
+    parser.add_argument(
+        'contour_file',
+        nargs='?',
+        type=Path,
+        default=CONTOUR_PATH,
+        help='GeoPackage boundary file'
+    )
     parser.add_argument(
         'output_path',
         nargs='?',
@@ -241,4 +268,4 @@ if __name__ == '__main__':
         help='Output GeoPackage path'
     )
     args = parser.parse_args()
-    main(args.contour_file, args.epsg_code, args.cell_km, args.output_path)
+    main(args.cell_size, args.epsg_code, args.contour_file, args.output_path)
