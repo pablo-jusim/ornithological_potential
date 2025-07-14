@@ -22,7 +22,7 @@ import pandas as pd
 import numpy as np
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parents[2]
 # Default output path
 OUTPUT_PATH = BASE_DIR / 'data' / 'raw' / 'empty_local_grid.gpkg'
 CONTOUR_PATH = BASE_DIR / 'data' / 'external' / 'contour_tdf.gpkg'

@@ -181,6 +181,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# Heavy data
-data/external/obs_ebird.txt

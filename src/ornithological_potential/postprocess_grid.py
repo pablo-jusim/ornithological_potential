@@ -23,7 +23,7 @@ import geopandas as gpd
 from pyogrio.errors import DataSourceError
 
 # Add project `src` directory to Python path
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parents[2]
 GRID_PATH = BASE_DIR / 'data' / 'interim' / 'clusters_grid.gpkg'
 COUNTS_PATH = BASE_DIR / 'data' / 'interim' / 'species_grid.csv'
 OUTPUT_PATH = BASE_DIR / 'data' / 'processed' / 'richness_grid.gpkg'

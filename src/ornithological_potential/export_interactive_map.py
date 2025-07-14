@@ -30,7 +30,7 @@ from ornithological_potential.utils import (categorise_opacity,
                                             generate_cluster_colors)
 
 # %% Paths
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parents[2]
 # Define input data path
 INPUT_GRID = BASE_DIR / 'data' / 'processed' / 'grilla_riqueza.gpkg'
 # Define output path for interactive map

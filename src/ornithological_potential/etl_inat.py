@@ -31,7 +31,7 @@ from pathlib import Path
 import pandas as pd
 
 # Default paths
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parents[2]
 INPUT_INAT_PATH = BASE_DIR / "data" / "external" / "inat_obs.csv"
 OUTPUT_INAT_PATH = BASE_DIR / "data" / "raw" / "data_inat.csv"
 

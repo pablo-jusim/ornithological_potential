@@ -22,7 +22,7 @@ from ornithological_potential.utils import (
 
 
 # output path
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parents[1]
 EBIRD_CSV_PATH = BASE_DIR.parent / 'data' / 'raw' / 'data_ebird.csv'
 INAT_CSV_PATH = BASE_DIR.parent / 'data' / 'raw' / 'data_inat.csv'
 GRID_GPKG_PATH = BASE_DIR.parent / 'data' / 'raw' / 'empty_local_grid.gpkg'
