@@ -5,30 +5,29 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "ornithological-potential"
 version = "0.0.1"
-description = "Python pipeline that grids any study area, classifies and clusters bird‐species assemblages per cell using iNaturalist/eBird data, and identifies richness hotspots"
+description = """
+Python pipeline that grids any study area, classifies and clusters 
+bird‐species assemblages per cell using iNaturalist/eBird data, 
+and identifies richness hotspots.
+"""
 authors = [
-  { name = "Pablo Jusim" },
+  { name = "Pablo Jusim" }
 ]
 license = { file = "LICENSE" }
 readme = "README.md"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License"
-]
 requires-python = ">=3.8"
-
-[tool.flit.metadata]
-module = "aux_ornitho_modules"
-
-
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License"
+]
 
 [tool.ruff]
 line-length = 99
-src = ["ornithological_potential"]
-include = ["pyproject.toml", "ornithological_potential/**/*.py"]
+src = ["src"]
+include = ["pyproject.toml", "src/ornithological_potential/**/*.py"]
 
 [tool.ruff.lint]
-extend-select = ["I"]  # Add import sorting
+extend-select = ["I"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["ornithological_potential"]

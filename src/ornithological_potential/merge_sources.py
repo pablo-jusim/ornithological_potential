@@ -14,15 +14,15 @@ import logging
 from pathlib import Path
 import pandas as pd
 from pyogrio.errors import DataSourceError
+import ornithological_potential.grid_association as grid_association
+from ornithological_potential.utils import (
+    remove_rare_species,
+    make_counts_dataframe
+)
 
-# Add project `src` directory to Python path
-BASE_DIR = Path(__file__).resolve().parent
-sys.path.append(str(BASE_DIR.parent / 'src'))
-
-import grid_association
-import utils
 
 # output path
+BASE_DIR = Path(__file__).resolve().parent
 EBIRD_CSV_PATH = BASE_DIR.parent / 'data' / 'raw' / 'data_ebird.csv'
 INAT_CSV_PATH = BASE_DIR.parent / 'data' / 'raw' / 'data_inat.csv'
 GRID_GPKG_PATH = BASE_DIR.parent / 'data' / 'raw' / 'empty_local_grid.gpkg'
@@ -123,7 +123,7 @@ def filter_and_clean(
     Returns:
         pd.DataFrame: Cleaned observations.
     """
-    df_no_rare = utils.remove_rare_species(df, threshold=rare_threshold)
+    df_no_rare = remove_rare_species(df, threshold=rare_threshold)
     logging.info("Filtered rare species (<=%d): %d records", rare_threshold,
                  len(df_no_rare))
 
@@ -153,7 +153,7 @@ def count_species(
     Returns:
         pd.DataFrame: Counts of each species per cell.
     """
-    df_counts = utils.make_counts_dataframe(df)
+    df_counts = make_counts_dataframe(df)
     logging.info("Created species counts for %d cells", len(df_counts))
     return df_counts
 

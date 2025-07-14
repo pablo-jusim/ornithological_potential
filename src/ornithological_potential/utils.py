@@ -1,6 +1,44 @@
 """
-Utility Functions Module
+Utility Functions for Ornithological Potential
+==============================================
+
+This module provides reusable functions to support the ornithological
+pipeline, including tasks for data cleaning, grid preparation, clustering,
+and mapping.
+
+Main functionalities:
+----------------------
+- **Rare species filtering**: Identify and remove species with low occurrence.
+- **Species counts per cell**: Generate pivot tables of species richness
+  per grid cell.
+- **Merge model results**: Attach clustering results back to spatial grids.
+- **Cluster selection utilities**: Evaluate and select the best number
+  of clusters.
+- **Mapping helpers**: Format cluster colour palettes and opacities
+  for interactive maps.
+
+Functions:
+----------
+- `list_rare_species(df, threshold)`: Return names of species below threshold.
+- `remove_rare_species(df, threshold)`: Filter out rare species from dataset.
+- `make_counts_dataframe(df)`: Pivot species counts per grid cell.
+- `merge_model_results(grid_gdf, cell_ids, cluster_labels, model_name)`:
+   Merge clusters into GeoDataFrame.
+- `select_best_k(...)`: Determine optimal k for clustering using BIC, AIC
+   or silhouette.
+- `categorise_opacity(score)`: Map scores to opacity levels for visualisation.
+- `generate_cluster_colors(num_clusters)`: Generate colour palettes
+   for clusters.
+
+Dependencies:
+-------------
+- `pandas`
+- `geopandas`
+- `numpy`
+- `seaborn`
+- `scikit-learn`
 """
+
 
 # %% Imports
 from typing import Callable, Tuple, Union
@@ -195,6 +233,11 @@ def categorise_opacity(score: float) -> float:
         - Low      (< 0.1)   → 0.4
         - Medium   (< 0.66)  → 0.8
         - High     (≥ 0.66)  → 0.98
+
+    Args:
+        score (float): Richness score between 0 and 1.
+    Returns:
+        float: Opacity level (0.2, 0.4, 0.8, or 0.98).
     """
     if score < 0.01:
         return 0.2

@@ -26,7 +26,8 @@ from pathlib import Path
 import geopandas as gpd
 import folium
 from folium.plugins import Fullscreen
-from utils import categorise_opacity, generate_cluster_colors
+from ornithological_potential.utils import (categorise_opacity,
+                                            generate_cluster_colors)
 
 # %% Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
