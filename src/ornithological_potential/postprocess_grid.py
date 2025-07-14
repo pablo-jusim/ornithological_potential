@@ -101,7 +101,7 @@ def compute_scores(
         priority_weight (int): Weight for priority species.
 
     Returns:
-        DataFrame: DataFrame with columns ['grid_id','score_riqueza']
+        DataFrame: DataFrame with columns ['grid_id','richness_score'].
     """
     if priority_species is None:
         priority_species = []

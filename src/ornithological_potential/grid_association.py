@@ -173,7 +173,6 @@ def main(
         cell_id_field: Grid ID column name.
         grid_layer: GeoPackage layer name.
         epsg_code: CRS code for input points.
-        output_csv: Path where to write the resulting CSV.
 
     Returns:
         The DataFrame of observations with assigned `cell_id`.

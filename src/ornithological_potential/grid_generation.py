@@ -211,7 +211,7 @@ def filter_inside_contour(
 # -----------------------------------------------------------------------------
 
 def main(
-    cell_size: float,
+    cell_km: float,
     epsg_code: int,
     contour_path: Path = CONTOUR_PATH,
     output_path: Path = OUTPUT_PATH
@@ -226,8 +226,8 @@ def main(
         output_path (Path): Destination GeoPackage path.
     """
     contour = load_geopackage(Path(contour_path), epsg_code)
-    df_grid = generate_grid(contour, cell_size)
-    gdf_grid = df_to_geodf(df_grid, epsg_code, contour, cell_size)
+    df_grid = generate_grid(contour, cell_km)
+    gdf_grid = df_to_geodf(df_grid, epsg_code, contour, cell_km)
     filtered = filter_inside_contour(gdf_grid, contour)
 
     filtered.to_file(output_path, driver='GPKG', layer=output_path.stem)
@@ -245,7 +245,7 @@ if __name__ == '__main__':
         description='Generate spatial grid'
     )
     parser.add_argument(
-        'cell_size',
+        'cell_km',
         nargs='?',
         type=float,
         default=5.0,
@@ -272,4 +272,4 @@ if __name__ == '__main__':
         help='Output GeoPackage path'
     )
     args = parser.parse_args()
-    main(args.cell_size, args.epsg_code, args.contour_file, args.output_path)
+    main(args.cell_km, args.epsg_code, args.contour_file, args.output_path)

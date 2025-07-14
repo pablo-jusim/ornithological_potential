@@ -68,7 +68,7 @@ def make_folium_map(
 
     # Ensure cluster field is string
     gdf['cluster'] = (gdf['cluster']
-                              .fillna('Without_data').astype(str))
+                      .fillna('Without_data').astype(str))
     # Convert to WGS84
     gdf_wgs = gdf.to_crs(epsg=4326)
     # Compute center of map

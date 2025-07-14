@@ -193,7 +193,7 @@ def main(
     rare_threshold: int = 5
 ) -> None:
     """
-    Execute the full merge → associate → filter → count → export pipeline.
+    Execute the full merge -> associate -> filter -> count -> export pipeline.
 
     Args:
         ebird_csv     (Path): Cleaned eBird CSV path.

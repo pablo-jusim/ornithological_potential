@@ -14,7 +14,7 @@ Main functionalities:
 - **Merge model results**: Attach clustering results back to spatial grids.
 - **Cluster selection utilities**: Evaluate and select the best number
   of clusters.
-- **Mapping helpers**: Format cluster colour palettes and opacities
+- **Mapping helpers**: Format cluster color palettes and opacities
   for interactive maps.
 
 Functions:
@@ -26,8 +26,8 @@ Functions:
    Merge clusters into GeoDataFrame.
 - `select_best_k(...)`: Determine optimal k for clustering using BIC, AIC
    or silhouette.
-- `categorise_opacity(score)`: Map scores to opacity levels for visualisation.
-- `generate_cluster_colors(num_clusters)`: Generate colour palettes
+- `categorize_opacity(score)`: Map scores to opacity levels for visualisation.
+- `generate_cluster_colors(num_clusters)`: Generate color palettes
    for clusters.
 
 Dependencies:
@@ -250,7 +250,7 @@ def categorise_opacity(score: float) -> float:
 
 def generate_cluster_colors(num_clusters: int) -> dict:
     """
-    Generate a dictionary of unique colours for each cluster.
+    Generate a dictionary of unique colors for each cluster.
 
     Each cluster ID is formatted as a string with one decimal (e.g., '0.0').
 
@@ -258,7 +258,7 @@ def generate_cluster_colors(num_clusters: int) -> dict:
         num_clusters (int): Number of clusters.
 
     Returns:
-        dict: {cluster_id: hex_colour}.
+        dict: {cluster_id: hex_color}.
     """
 
     palette = sns.color_palette('Set2', num_clusters).as_hex()
