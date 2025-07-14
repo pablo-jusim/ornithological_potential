@@ -1,140 +1,166 @@
-# Potencial Ornitologico Fueguino
-### **Autor:** Pablo Jusim
+# Ornithological potential
+### **Author:** Pablo Jusim
 
-<img src="data/external/Carpintero.jpeg" alt="drawing" width="200"/>
+<img src="data/external/woodpecker.jpeg" alt="drawing" width="200"/>
 
-## Contenidos
-1. [Introducción](#introducción)
-2. [Objetivos](#objetivos)  
-3. [Origen de los datos](#origen-de-los-datos)  
-4. [Línea de trabajo](#línea-de-trabajo)  
-5. [Resultados](#resultados)  
-6. [Conclusiones](#conclusiones)  
-7. [Debilidades](#debilidades-del-proyecto)  
-8. [Organización del proyecto](#organización-del-proyecto)  
-9. [Instalación y uso](#instalación-y-uso)  
-10. [Licencia](#licencia)
-11. [Contacto](#contacto)
+## Contents
+1. [Introduction](#introduction)
+2. [Objectives](#objectives)
+3. [Data sources](#data-sources)
+4. [Workflow](#workflow)
+5. [Results](#results)
+6. [Conclusions](#conclusions)
+7. [Limitations](#limitations)
+8. [Project structure](#project-structure)
+9. [Installation & usage](#installation--usage)
+10. [License](#license)
+11. [Contact](#contact)
+
+---
+
+## Introduction
+Birdwatching tourism is experiencing significant global growth. This type of tourism combines low environmental impact with the potential to generate valuable income for local communities. 
+
+This project provides a replicable method for spatially classifying an area based on bird species richness, highlighting sites with the highest ornithological potential. Although Tierra del Fuego, Argentina, is used as an example, **the methodology can be applied to any region worldwide**, as long as the user provides the necessary observation data in the `data/external` folder.
+
+---
+
+## **Objectives**
+### General objetive
+Identify the best areas for birdwatching, based on observed species richness and the presence of rare or endemic species.
+
+### Specific objetives
+- Classify each grid cell in the area of interest into clusters according to recorded bird species.
+- Detect the grid cells with the highest ornithological potential within each cluster.
+- Provide spatial outputs to support sustainable birdwatching tourism planning.
+
+<img src="data/external/king_penguin.jpeg" alt="drawing" width="200"/>
+
+---
+
+## Data sources
+The project uses bird occurrence data from **citizen science** platforms [iNaturalist](https://www.inaturalist.org) and [eBird](https://ebird.org/). These data are freely available and were requested directly from both platforms.
+
+👉 *For your own study area, you should obtain and place the required datasets in the `data/external` folder.*
+
+---
+
+## Workflow
+The workflow is structured in a single main notebook supported by auxiliary modules within the `ornithological_potential` Python package.
+
+**Main steps:**
+1. Data cleaning and preparation of records from iNaturalist and eBird.
+2. Generation of the study grid and association of records to grid cells.
+3. Clustering of grid cells based on species presence.
+4. Calculation of species richness scores and identification of the best cells for birdwatching.
+5. Export of maps and interactive visualisations.
+
+## Results
+- The study area was divided into clusters according to species composition.
+- A clustered grid was produced, highlighting cells with higher species richness within each cluster.
+- The final output includes maps and tables to guide sustainable birdwatching activities.
+
+<img src="data/external/interactive_map_example.jpg" alt="drawing"/>
+> *Above: Screenshot of a final clustered grid and richness scores obtained with data for Tierra del Fuego, Argentina. For the full interactive map, see `reports/figures/interactive_map.html`.*
+
+---
+
+## Conclusions
+Using data from iNaturalist and eBird, the project identifies the **best areas** to take tourists for birdwatching with the goal of seeing as many species as possible within a limited number of trips. 
+
+Although Tierra del Fuego was the example region, the pipeline and code are designed to be **fully reusable for any other region** with available data. Simply obtain bird occurrence records, prepare a study grid, and run the provided notebook and modules.
+
+---
+
+## Limitations
+- Some areas within the study grid lack sufficient citizen science records. Remote or less-visited sites may be underrepresented.
+- The methodology focuses exclusively on citizen science data, which means scientific observations not uploaded to these platforms are excluded. With more comprehensive datasets, cluster definitions and site recommendations could vary.
+- The project does not account for seasonal variations in bird populations or migration patterns.
 
 
-## Introducción
-El turismo de observación de aves u ornitológico está en pleno creciemiento a nivel mundial. Esta clase de turismo trae un bajo impacto ambiental al tiempo que permite el ingreso de divisas. En la provincia de Tierra del Fuego, Argentina, la observación turística de aves está en un estado incipiente. Para formentar esta actividad, sería valorable contar con una clasificación territorial que permita saber a que sitios ir para observar la mayor cantidad de especies posibles, destacando especies raras o endémicas.
+<img src="data/external/condor.jpeg" alt="drawing" width="400"/>
 
-## **Objetivos**
-### Objetivo general
-Descubrir los mejores sitios de la provincia de Tierra del Fuego para llevar turistas que deseen realizar observación de aves.
+---
 
-### Objetivos particulares
-- Clasificar cada celda de la provincia de Tierra del Fuego en un cluster según las especies de aves registradas
-- Identificar los sitios con mayor potencial ornitológico dentro de cada cluster
-
-<img src="data/external/Pingüino_rey.jpeg" alt="drawing" width="200"/>
-
-## Origen de los datos
-Se trabajó con registros de especies de aves realizados en las plataformas de **ciencia ciudadana** [iNaturalist](https://www.inaturalist.org) y [eBird](https://ebird.org/). Los datos son libres y fueron solicitados a ambas plataformas. Se solicitaron todos los datos disponibles de registros de aves en la provincia de Tierra del Fuego, Argentina.
-
-## Línea de trabajo
-Cada punto indicado corresponde a un notebook con idéntica numeración
-
-1a. Limpieza y preparación de datos obtenidos de iNaturalist
-1b. Limpieza y preparación de datos obtenidos de eBird
-2. Confección de la base de datos a utilizarse en la clasificación de sitios (celdas)
-3. Clusterización de las celdas en base a las especies registradas
-4. Detección de las mejores celdas para observación en cada cluster en base a la riqueza específica y creación de mapas.
-
-## Resultados
-- Se dividió a la provincia de Tierra del Fuego en tres clusters según las especies de aves presentes
-- Se obtuvo una grilla clusterizada de la provincia
-- Se destacaron los mejores sitios para observación de aves en cada cluster
-- Se creó un mapa mostrando la grilla clusterizada y la riqueza relativa de cada celda
-
-<img src="reports/figures/Captura mapa interactivo.jpg" alt="drawing"/>
-
-<p></p>
-<p>Aquí se observa una captura de pantalla del mapa final. Para ver el mapa interactivo consulte la ruta "reports/figures/mapa_interactivo.html"</p>
-
-## Conclusiones
-
-A partir de los datos obtenidos de las plataformas iNaturalist y eBird se seleccionaron los **mejores sitios** para llevar turistas que deseen observar la mayor cantidad de aves que habitan en la provincia de Tierra del Fuego en la menor cantidad de salidas posible. Si un observador de aves desea visitar Tierra del Fuego debería priorizar recorrer:
-- el área costera de Bahía Ushuaia, incluyendo el área de la reserva Bahía Encerrada;
-- el Parque Nacional Tierra del Fuego
-- las cercanías de la ciudad de Río Grande
-
-Tanto los notebook de este proyecto como las funciones desarrolladas *ad-hoc* pueden ser utilizados para la clasificación de sitios en **cualquier lugar del mundo**, siempre y cuando se disponga de los datos correspondientes. Solo se requiere obtener los datos de las mismas fuentes (los cuales están disponibles tras el registro) y crear un mapa de contorno del área.
-
-## Debilidades del proyecto
-- Gran cantidad de celdas no cuentan con registros en las mencionadas plataformas. Si bien zonas como península Mitre no serían visitables por su aislamiento geográfico, otras zonas al norte del lago Khami en las ceranías de la frontera cuentan con rutas de acceso y podrían presentar una mayor riqueza de especies.
-- Se decidió utilizar unicamente registros de ciencia ciudadana ya que la forma de obtenerlos es similar a los medios con los que cuentan los turistas (binoculares y cámara fotográfica). Sin embargo, esta metología excluye tanto a los registros realizados por la comunidad científica como los sitios poco visitados. Con registros más completos los clusters obtenidos podrían ser ligeramente diferentes, al igual que las celdas recomendadas.
-
-<img src="data/external/Condor.jpeg" alt="drawing" width="400"/>
-
-## Organización del proyecto
+## Project structure
 
 ```
-├── LICENSE            <- Licencia de código abierto
-├── Makefile           <- Makefile con comandos útiles como `make data` o `make train`.
-├── README.md          <- Archivo README principal con el resumen del proyecto.
+├── LICENSE            <- Open source license.
+├── Makefile           <- Makefile with useful commands (optional).
+├── README.md          <- Project summary. This file.
 ├── data
-│   ├── external       <- Datos e imágenes de fuentes externas (terceros).
-│   ├── interim        <- Datos intermedios que han sido transformados.
-│   ├── processed      <- Conjuntos de datos finales.
-│   └── raw            <- Volcado de datos original para el modelado.
+│   ├── external       <- Raw data provided by the user (iNaturalist, eBird, images).
+│   ├── interim        <- Intermediate data, cleaned and transformed.
+│   ├── processed      <- Final outputs (e.g., clustered grids).
+│   └── raw            <- Original raw data dumps.
 │
-├── notebooks          <- Notebooks de Jupyter para procesar y modelar los datos
-│   ├── 01a-conversion_inat.ipynb       <- Limpieza de datos iNaturalist.
-│   ├── 01b-conversion_ebird.ipynb      <- Limpieza de datos eBird.
-│   ├── 02-preparacion_df.ipynb         <- Creación de base de datos para modelado.
-|   ├── 03-main.ipynb                   <- Clusterización de la grilla.
-│   └── 04-postprocesamiento.ipynb      <- Evaluación de riqueza y creación de mapas.
+├── notebooks
+|   └── Main.ipynb     <- Main notebook to run the entire workflow.
 │
-├── pyproject.toml     <- Archivo de configuración del proyecto
+├── pyproject.toml     <- Project configuration file
 │
-├── references         <- Material de referencia.
+├── references         <- Reference material
 │
-├── reports            <- Análisis generados en formatos HTML, PDF, LaTeX, etc.
-│   └── figures        <- Gráficos y figuras generadas para ser utilizadas en los informes,
-│                          incluyendo mapas interactivos.
+├── reports
+│   └── figures        <- Generated plots and interactive maps.
 │
-├── requirements.txt   <- Archivo de requerimientos para reproducir el entorno de análisis, por ejemplo:
-│                         generado con `pip freeze > requirements.txt`.
-│
-├── setup.cfg          <- Archivo de configuración para flake8
+├── setup.cfg          <- Linting and style config.
 |
-└── src                <- Código fuente del proyecto. Contiene funciones auxiliares utilizadas en los notebooks.
-    ├── __pycache__/    <- Archivos temporales generados automáticamente por Python.
-    ├── utils.py        <- Funciones generales reutilizables.
-    ├── grillado.py     <- Funciones para crear la grilla en base al mapa de contorno.
-    └── asociar_griila.py  <- Funciones para gasociar observaciones a la celda correspondiente.
+└── src
+    └── ornithologcal_potential
+        ├── __pycache__         <- Python cache files.
+        ├── __init__.py         <- Package initialization.
+        ├── etl_ebird.py        <- Extract, transform, load eBird data.
+        ├── etl_iNat.py         <- Extract, transform, load iNat uralist data.
+        ├── export_interactive_map.py   <- Export interactive map.
+        ├── grid_association.py <- Associate grid cells with bird species.
+        ├── grid_generation.py  <- Generate study grid.
+        ├── merge_sources.py    <- Merge eBird and iNat data.
+        ├── postprocess_grid.py <- Postprocess grid data.
+        └── utils.py            <- General utility functions.
 ```
 
-## Instalación y uso
+---
 
-1. Clonar el repositorio  
+## Installation & usage
+
+1. **Clone the repository**  
 
    ```bash
-   git clone https://github.com/pablo-jusim/Potencial-ornitologico-fueguino.git
-   cd Potencial-ornitologico-fueguino
+   git clone https://github.com/pablo-jusim/ornithological_potential.git
+   cd ornithological_potential
    ```
 
-2. Crear entorno e instalar dependencias  
+2. **Create and activate a virtual environment**
 
     ```bash
     python3 -m venv venv
-    source venv/bin/activate    # o venv\Scripts\activate en Windows
-    pip install -r requirements.txt
+    source venv/bin/activate      # or venv\Scripts\activate on Windows
     ```
 
-3. Descargar los datos de eBird desde su servidor o desde [google drive](https://drive.google.com/file/d/1Dlc4CDrUaHSdlqO_qWHAMROhHPoJIOhG/view?usp=sharing).
+3. **Install dependencies**
 
-4. Ejecutar los notebook en el orden indicado
+    ```bash
+   pip install -r requirements.txtl
+   ```
 
-## Licencia
+4. **Add your own occurrence data**
+    Place your .csv or .txt files in data/external/.
 
-Este proyecto se distribuye bajo la licencia MIT.  
-Ver [LICENSE](LICENSE) para más detalles.
+5. **Run the main notebook**
+    Execute notebooks/Main.ipynb step by step to process, cluster and generate your final maps.
 
-## Contacto
-pablo.jusim@gmail.com
+---
+
+## License
+
+This project is distributed under the MIT License.  
+See [LICENSE](LICENSE) for details.
+
+---
+
+## Contact
+📧 pablo.jusim@gmail.com
 
 
 
