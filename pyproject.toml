@@ -3,9 +3,9 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "potencial_ornitologico_fueguino"
+name = "ornithological-potential"
 version = "0.0.1"
-description = "Clasificaci\u00f3n de puntos de un raster de la provincia de Tierra del Fuego, Argentina en base a su potencial para observaci\u00f3n de aves seg\u00fan registros historicos d eobservacion"
+description = "Python pipeline that grids any study area, classifies and clusters bird‐species assemblages per cell using iNaturalist/eBird data, and identifies richness hotspots"
 authors = [
   { name = "Pablo Jusim" },
 ]
@@ -15,18 +15,22 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License"
 ]
-requires-python = "~=3.13.0"
+requires-python = ">=3.8"
+
+[tool.flit.metadata]
+module = "aux_ornitho_modules"
+
 
 
 [tool.ruff]
 line-length = 99
-src = ["potencial_ornitologico_fueguino"]
-include = ["pyproject.toml", "potencial_ornitologico_fueguino/**/*.py"]
+src = ["ornithological_potential"]
+include = ["pyproject.toml", "ornithological_potential/**/*.py"]
 
 [tool.ruff.lint]
 extend-select = ["I"]  # Add import sorting
 
 [tool.ruff.lint.isort]
-known-first-party = ["potencial_ornitologico_fueguino"]
+known-first-party = ["ornithological_potential"]
 force-sort-within-sections = true
 
