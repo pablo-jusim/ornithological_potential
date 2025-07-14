@@ -11,8 +11,8 @@ Steps:
 
 Usage as script:
     python postprocess_map.py
-        --input-grid data/processed/grilla_riqueza.gpkg
-        --output-html reports/figures/mapa_interactivo.html
+        --input-grid data/processed/richness_grid.gpkg
+        --output-html reports/figures/interactive_map.html
 
 Importable API:
     from postprocess_map import main
@@ -32,7 +32,7 @@ from ornithological_potential.utils import (categorise_opacity,
 # %% Paths
 BASE_DIR = Path(__file__).resolve().parents[2]
 # Define input data path
-INPUT_GRID = BASE_DIR / 'data' / 'processed' / 'grilla_riqueza.gpkg'
+INPUT_GRID = BASE_DIR / 'data' / 'processed' / 'richness_grid.gpkg'
 # Define output path for interactive map
 OUTPUT_HTML = BASE_DIR / 'reports' / 'figures' / 'interactive_map.html'
 
@@ -59,7 +59,7 @@ def make_folium_map(
 
     Args:
         colors (dict): Dictionary mapping cluster IDs to hex colors.
-        gdf (GeoDataFrame): Grid with 'GaussianMixture' and 'score_riqueza'.
+        gdf (GeoDataFrame): Grid with 'cluster' and 'richness_score'.
         output_html (Path): Path to save the HTML map.
 
     Returns:
@@ -67,7 +67,7 @@ def make_folium_map(
     """
 
     # Ensure cluster field is string
-    gdf['GaussianMixture'] = (gdf['GaussianMixture']
+    gdf['cluster'] = (gdf['cluster']
                               .fillna('Without_data').astype(str))
     # Convert to WGS84
     gdf_wgs = gdf.to_crs(epsg=4326)
@@ -83,7 +83,7 @@ def make_folium_map(
     # Style function for GeoJson
     def style_func(feature):
         props = feature['properties']
-        cluster = str(props.get('GaussianMixture', 'Without_data'))
+        cluster = str(props.get('cluster', 'Without_data'))
         color = colors.get(cluster, '#f0f0f0')
         opacity = float(props.get('OpacityCategory', 0.7))
         return {
@@ -99,7 +99,7 @@ def make_folium_map(
         name='Grid',
         style_function=style_func,
         tooltip=folium.features.GeoJsonTooltip(
-            fields=['GaussianMixture', 'score_riqueza'],
+            fields=['cluster', 'richness_score'],
             aliases=['Cluster:', 'Score:'],
             localize=True
         )
@@ -145,7 +145,7 @@ def main(
     # Read enriched grid
     gdf = gpd.read_file(INPUT_GRID)
     logging.info("Loaded enriched grid: %s", INPUT_GRID)
-    gdf['OpacityCategory'] = gdf['score_riqueza'].apply(categorise_opacity)
+    gdf['OpacityCategory'] = gdf['richness_score'].apply(categorise_opacity)
     # Generate and save map, return object
     return make_folium_map(colors, gdf, export_path)
 

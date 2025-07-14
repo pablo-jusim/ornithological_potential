@@ -12,7 +12,7 @@ Steps:
 4. Export enriched grid as GeoPackage
 
 Produces:
-- ../data/processed/grilla_riqueza.gpkg
+- ../data/processed/richness_grid.gpkg
 """
 # %% Imports
 import sys
@@ -24,7 +24,7 @@ from pyogrio.errors import DataSourceError
 
 # Add project `src` directory to Python path
 BASE_DIR = Path(__file__).resolve().parents[2]
-GRID_PATH = BASE_DIR / 'data' / 'interim' / 'clusters_grid.gpkg'
+GRID_PATH = BASE_DIR / 'data' / 'interim' / 'species_grid.gpkg'
 COUNTS_PATH = BASE_DIR / 'data' / 'interim' / 'species_grid.csv'
 OUTPUT_PATH = BASE_DIR / 'data' / 'processed' / 'richness_grid.gpkg'
 
@@ -140,16 +140,15 @@ def merge_scores(
 
     Args:
         grid_gdf (GeoDataFrame): Original grid with 'grid_id'
-        and 'GaussianMixture'.
+        and 'cluster'.
         score_df (pd.DataFrame): DataFrame with 'grid_id'
         and 'weighted_richness' columns.
 
     Returns:
         GeoDataFrame: grid with new 'richness_score' column.
     """
-    df_calc = grid_gdf[['grid_id', 'GaussianMixture']].copy()
-    df_calc = df_calc[df_calc['GaussianMixture'].notna()]
-    df_calc = df_calc.rename(columns={'GaussianMixture': 'cluster'})
+    df_calc = grid_gdf[['grid_id', 'cluster']].copy()
+    df_calc = df_calc[df_calc['cluster'].notna()]
 
     # merge richness
     calc = df_calc.merge(score_df, on='grid_id', how='left')
@@ -187,7 +186,7 @@ def export_grid(
         else output_path
         )
     out_fp.parent.mkdir(parents=True, exist_ok=True)
-    enriched_gdf.to_file(out_fp, driver='GPKG', layer='grilla_clusters')
+    enriched_gdf.to_file(out_fp, driver='GPKG', layer='grid_layer')
     logging.info("Exported enriched grid to %s", out_fp)
 
 
